@@ -1,3 +1,4 @@
+import { describe, it, expect, test } from "vitest";
 import { renderTextWithLinks } from "./textUtils";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
@@ -21,7 +22,7 @@ describe("textUtils", () => {
         test.each(testCases)('renders correctly for: "%s"', (input, expectedTextContent, expectedLinksCount) => {
             const result = renderTextWithLinks(input);
 
-            // To test React elements easily without complex tree traversal, 
+            // To test React elements easily without complex tree traversal,
             // we render it wrapped in a div
             const { container } = render(<div>{result}</div>);
 
