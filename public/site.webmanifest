@@ -1,7 +1,7 @@
 {
     "name": "The Dokinomicon",
     "short_name": "Dokinomicon",
-    "description": "Explore the interconnected universe of Dokis.",
+    "description": "An archive of every Doki in the Dokiverse.",
     "start_url": "/dokinomicon/",
     "scope": "/dokinomicon/",
     "icons": [
