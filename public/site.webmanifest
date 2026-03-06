@@ -1,0 +1,28 @@
+{
+    "name": "The Dokinomicon",
+    "short_name": "Dokinomicon",
+    "description": "Explore the interconnected universe of Dokis.",
+    "start_url": "/dokinomicon/",
+    "scope": "/dokinomicon/",
+    "icons": [
+        {
+            "src": "/dokinomicon/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/dokinomicon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/dokinomicon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "theme_color": "#0d0f1a",
+    "background_color": "#0d0f1a",
+    "display": "standalone"
+}
