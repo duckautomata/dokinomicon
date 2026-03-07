@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, Link, NavLink } from "react-router-dom";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
 import { loadDokiData } from "./utils/dataLoader";
 import { useAppStore } from "./store/store";
 import Home from "./pages/Home";
@@ -10,6 +10,22 @@ import ScrollToTop from "./components/ScrollToTop";
 import "./App.css";
 
 export default function App() {
+    const location = useLocation();
+
+    useLayoutEffect(() => {
+        document.documentElement.style.scrollBehavior = "auto";
+
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "instant",
+        });
+
+        setTimeout(() => {
+            document.documentElement.style.scrollBehavior = "";
+        }, 20);
+    }, [location.pathname]);
+
     const [data, setData] = useState([]);
     const theme = useAppStore((state) => state.theme);
 
