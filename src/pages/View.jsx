@@ -184,12 +184,7 @@ export default function View({ data }) {
             </div>
 
             <div className="view-actions">
-                <a
-                    href={edit_doki_form}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="edit-doki-btn"
-                >
+                <a href={edit_doki_form} target="_blank" rel="noopener noreferrer" className="edit-doki-btn">
                     <span>✎ Suggest Edit</span>
                     <ExternalLinkIcon />
                 </a>
