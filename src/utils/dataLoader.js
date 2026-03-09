@@ -1,7 +1,6 @@
 import Papa from "papaparse";
 import { LOG_ERROR } from "./debug";
-
-const CDN_BASE = "https://content.duck-automata.com/dokinomicon";
+import { cdn } from "../config";
 
 const fetchAndParseCSV = async (url) => {
     const response = await fetch(url);
@@ -21,8 +20,8 @@ const fetchAndParseCSV = async (url) => {
 export const loadDokiData = async () => {
     try {
         const [dataRows, imageRows] = await Promise.all([
-            fetchAndParseCSV(`${CDN_BASE}/data.csv`),
-            fetchAndParseCSV(`${CDN_BASE}/images.csv`),
+            fetchAndParseCSV(`${cdn}/data.csv`),
+            fetchAndParseCSV(`${cdn}/images.csv`),
         ]);
 
         // Group images by doki_id and image_type
@@ -42,9 +41,9 @@ export const loadDokiData = async () => {
                 image_name,
                 source,
                 image_type,
-                urlOrig: `${CDN_BASE}/${image_id}${image_ext}`,
-                urlWebp: `${CDN_BASE}/${image_id}_p.webp`,
-                urlThumb: `${CDN_BASE}/${image_id}_t.webp`,
+                urlOrig: `${cdn}/${image_id}${image_ext}`,
+                urlWebp: `${cdn}/${image_id}_p.webp`,
+                urlThumb: `${cdn}/${image_id}_t.webp`,
             });
         });
 

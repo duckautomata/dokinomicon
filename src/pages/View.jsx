@@ -2,7 +2,27 @@ import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ImageModal from "../components/ImageModal";
 import { renderTextWithLinks } from "../utils/textUtils";
+import { edit_doki_form } from "../config";
 import "./View.css";
+
+const ExternalLinkIcon = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="external-link-icon-view"
+    >
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+    </svg>
+);
 
 export default function View({ data }) {
     const { doki_id } = useParams();
@@ -161,6 +181,18 @@ export default function View({ data }) {
                         </div>
                     )}
                 </div>
+            </div>
+
+            <div className="view-actions">
+                <a
+                    href={edit_doki_form}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="edit-doki-btn"
+                >
+                    <span>✎ Suggest Edit</span>
+                    <ExternalLinkIcon />
+                </a>
             </div>
 
             {renderImageGroup("Reference", doki.images?.Reference)}

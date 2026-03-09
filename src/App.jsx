@@ -7,6 +7,7 @@ import View from "./pages/View";
 import UpdateAlert from "./components/UpdateAlert";
 import Images from "./pages/Images";
 import ScrollToTop from "./components/ScrollToTop";
+import SuggestionsDropdown from "./components/SuggestionsDropdown";
 import "./App.css";
 
 export default function App() {
@@ -94,6 +95,7 @@ export default function App() {
                         <NavLink to="/image" className="nav-link nav-images">
                             Images
                         </NavLink>
+                        <SuggestionsDropdown />
                     </div>
                     <ScrollToTop />
                 </nav>
