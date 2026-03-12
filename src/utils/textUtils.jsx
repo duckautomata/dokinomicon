@@ -1,3 +1,9 @@
+/**
+ * Renders text, converting URLs into clickable external links.
+ *
+ * @param {string} text - The input text to process
+ * @returns {string|JSX.Element[]} The processed content with link elements
+ */
 export function renderTextWithLinks(text) {
     if (!text) return text;
 

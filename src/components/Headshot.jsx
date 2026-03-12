@@ -1,5 +1,18 @@
 import { Link } from "react-router-dom";
 
+
+/**
+ * @typedef {import("../store/types").DokiData} DokiData
+ * @typedef {import("../store/types").ImageData} ImageData
+ */
+
+/**
+ * Headshot component for displaying a Doki card.
+ *
+ * @param {Object} props
+ * @param {DokiData} props.doki
+ * @param {ImageData} props.headshot
+ */
 export default function Headshot({ doki, headshot }) {
     return (
         <Link to={`/view/${doki.doki_id}`} className="doki-card glass-panel">

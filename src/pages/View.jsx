@@ -5,6 +5,11 @@ import { renderTextWithLinks } from "../utils/textUtils";
 import { edit_doki_form } from "../config";
 import "./View.css";
 
+/**
+ * @typedef {import("../store/types").DokiData} DokiData
+ * @typedef {import("../store/types").ImageData} ImageData
+ */
+
 const ExternalLinkIcon = () => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,6 +29,10 @@ const ExternalLinkIcon = () => (
     </svg>
 );
 
+/**
+ * @param {Object} props
+ * @param {DokiData[]} props.data
+ */
 export default function View({ data }) {
     const { doki_id } = useParams();
     const doki = data.find((d) => d.doki_id === doki_id);
@@ -83,6 +92,10 @@ export default function View({ data }) {
         }
     };
 
+    /**
+     * @param {string} title
+     * @param {ImageData[]} imageList
+     */
     const renderImageGroup = (title, imageList) => {
         if (!imageList || imageList.length === 0) return null;
 

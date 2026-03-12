@@ -2,7 +2,14 @@ import { useState, useMemo } from "react";
 import ImageModal from "../components/ImageModal";
 import { useAppStore } from "../store/store";
 import "./Images.css";
+/**
+ * @typedef {import("../store/types").DokiData} DokiData
+ */
 
+/**
+ * @param {Object} props
+ * @param {DokiData[]} props.data
+ */
 export default function Images({ data }) {
     const searchQuery = useAppStore((state) => state.imageSearchText);
     const setSearchQuery = useAppStore((state) => state.setImageSearchText);

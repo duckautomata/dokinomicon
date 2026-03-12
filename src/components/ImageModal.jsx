@@ -2,6 +2,19 @@ import { useEffect, useState, useCallback } from "react";
 import "./ImageModal.css";
 import { LOG_ERROR } from "../utils/debug";
 
+/**
+ * @typedef {import("../store/types").ImageData} ImageData
+ */
+
+/**
+ * ImageModal component for viewing images in a modal gallery.
+ *
+ * @param {Object} props
+ * @param {ImageData[]} props.images
+ * @param {number} props.selectedIndex
+ * @param {function(): void} props.onClose
+ * @param {function(number): void} props.onNavigate
+ */
 export default function ImageModal({ images, selectedIndex, onClose, onNavigate }) {
     const [copiedLink, setCopiedLink] = useState(false);
     const [copiedImage, setCopiedImage] = useState(false);

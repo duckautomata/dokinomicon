@@ -2,6 +2,10 @@ import Papa from "papaparse";
 import { LOG_ERROR } from "./debug";
 import { cdn } from "../config";
 
+/**
+ * @typedef {import("../store/types").DokiData} DokiData
+ */
+
 const fetchAndParseCSV = async (url) => {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch ${url}`);
@@ -17,6 +21,11 @@ const fetchAndParseCSV = async (url) => {
     });
 };
 
+/**
+ * Loads and parses doki data and images from CSV files.
+ *
+ * @returns {Promise<DokiData[]>} Promise resolving to an array of parsed doki data objects
+ */
 export const loadDokiData = async () => {
     try {
         const [dataRows, imageRows] = await Promise.all([

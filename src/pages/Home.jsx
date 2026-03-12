@@ -3,6 +3,14 @@ import Headshot from "../components/Headshot";
 import { useAppStore } from "../store/store";
 import "./Home.css";
 
+/**
+ * @typedef {import("../store/types").DokiData} DokiData
+ */
+
+/**
+ * @param {Object} props
+ * @param {DokiData[]} props.data
+ */
 export default function Home({ data }) {
     const searchQuery = useAppStore((state) => state.homeSearchText);
     const setSearchQuery = useAppStore((state) => state.homeSetSearchText);

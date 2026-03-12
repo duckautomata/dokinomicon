@@ -2,6 +2,35 @@ import { StateCreator } from "zustand";
 
 // Data Structure Interfaces
 
+export interface ImageData {
+    image_id: string;
+    image_ext: string;
+    image_name: string;
+    source: string;
+    image_type: string;
+    urlOrig: string;
+    urlWebp: string;
+    urlThumb: string;
+}
+
+export interface DokiData {
+    doki_id: string;
+    name: string;
+    debut_date: string;
+    debut_stream: string;
+    artists: string;
+    description: string;
+    group: string;
+    parent_id: string;
+    tags: string[];
+    images: {
+        Headshot: ImageData[];
+        Reference: ImageData[];
+        Screenshot: ImageData[];
+        Asset: ImageData[];
+    };
+}
+
 // Slice Interfaces
 
 export interface FilterSlice {

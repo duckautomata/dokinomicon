@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 /**
  * Hook to poll for version updates.
  * Compares the build time of the current application with the build time in version.json.
+ *
+ * @param {number} [intervalMs=300000] - Polling interval in milliseconds (default: 5 minutes)
+ * @returns {{updateAvailable: boolean}} Object containing update status
  */
 export const useVersionCheck = (intervalMs = 5 * 60 * 1000) => {
     // Default to 5 minutes
