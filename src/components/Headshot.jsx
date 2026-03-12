@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 
-
 /**
  * @typedef {import("../store/types").DokiData} DokiData
  * @typedef {import("../store/types").ImageData} ImageData
