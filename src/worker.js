@@ -23,7 +23,7 @@ export default {
             }
 
             // It's a navigation route (no extension). Fallback to the SPA's root.
-            url.pathname = "/dokinomicon/"; 
+            url.pathname = "/dokinomicon/";
             return env.ASSETS.fetch(new Request(url, request));
         }
 
