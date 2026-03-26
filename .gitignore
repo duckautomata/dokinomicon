@@ -21,6 +21,7 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 *.lcov
+*.xml
 
 # nyc test coverage
 .nyc_output
@@ -50,8 +51,8 @@ web_modules/
 # Optional npm cache directory
 .npm
 
-# Optional eslint cache
-.eslintcache
+# Optional cache
+.oxlintcache
 
 # Optional stylelint cache
 .stylelintcache
