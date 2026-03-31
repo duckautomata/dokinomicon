@@ -86,9 +86,9 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
 
             const response = await fetch(image.urlOrig);
             const blob = await response.blob();
-            
+
             let clipboardBlob = blob;
-            
+
             // The Clipboard API mainly supports image/png.
             // Convert non-PNG images to PNG using a canvas.
             if (blob.type !== "image/png") {
