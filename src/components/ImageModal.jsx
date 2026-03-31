@@ -78,7 +78,6 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
 
     const handleCopyImage = async () => {
         try {
-            // Check if standard clipboard API supports this
             if (!navigator.clipboard || !window.ClipboardItem) {
                 setErrorMsg("Copying images is not supported in your browser.");
                 setTimeout(() => setErrorMsg(""), 3000);
@@ -87,8 +86,38 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
 
             const response = await fetch(image.urlOrig);
             const blob = await response.blob();
-            // Create a new clipboard item with the blob type
-            const item = new ClipboardItem({ [blob.type]: blob });
+            
+            let clipboardBlob = blob;
+            
+            // The Clipboard API mainly supports image/png.
+            // Convert non-PNG images to PNG using a canvas.
+            if (blob.type !== "image/png") {
+                clipboardBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src);
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0);
+                        canvas.toBlob((b) => {
+                            if (b) {
+                                resolve(b);
+                            } else {
+                                reject(new Error("Canvas toBlob failed"));
+                            }
+                        }, "image/png");
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(img.src);
+                        reject(new Error("Image failed to load for conversion"));
+                    };
+                    img.src = URL.createObjectURL(blob);
+                });
+            }
+
+            const item = new ClipboardItem({ [clipboardBlob.type]: clipboardBlob });
             await navigator.clipboard.write([item]);
             setCopiedImage(true);
             setTimeout(() => setCopiedImage(false), 2000);
