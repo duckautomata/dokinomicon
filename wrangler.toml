@@ -13,3 +13,14 @@ zone_name = "duck-automata.com"
 [[routes]]
 pattern = "www.duck-automata.com/dokinomicon/*"
 zone_name = "duck-automata.com"
+
+[env.dev]
+name = "dokinomicon-dev"
+
+[[env.dev.routes]]
+pattern = "dev.duck-automata.com/dokinomicon"
+zone_name = "duck-automata.com"
+
+[[env.dev.routes]]
+pattern = "dev.duck-automata.com/dokinomicon/*"
+zone_name = "duck-automata.com"

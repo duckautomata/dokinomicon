@@ -5,6 +5,7 @@ import { useAppStore } from "./store/store";
 import Home from "./pages/Home";
 import View from "./pages/View";
 import UpdateAlert from "./components/UpdateAlert";
+import EnvironmentBadge from "./components/EnvironmentBadge";
 import Images from "./pages/Images";
 import ScrollToTop from "./components/ScrollToTop";
 import SuggestionsDropdown from "./components/SuggestionsDropdown";
@@ -84,9 +85,12 @@ export default function App() {
         <>
             <UpdateAlert />
             <header className="top-nav">
-                <Link to="/" className="nav-brand">
-                    Dokinomicon
-                </Link>
+                <div className="brand-group">
+                    <Link to="/" className="nav-brand">
+                        Dokinomicon
+                    </Link>
+                    <EnvironmentBadge />
+                </div>
                 <nav className="nav-links">
                     <div className="nav-main-links">
                         <NavLink to="/" className="nav-link nav-home">
@@ -95,6 +99,7 @@ export default function App() {
                         <NavLink to="/image" className="nav-link nav-images">
                             Images
                         </NavLink>
+                        <EnvironmentBadge className="mobile-only" />
                         <SuggestionsDropdown />
                     </div>
                     <ScrollToTop />
