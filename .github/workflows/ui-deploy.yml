@@ -57,10 +57,6 @@ jobs:
                   reporter: jest-junit
 
             - name: Build Static Files
-              env:
-                  VITE_PAGE_TITLE: "The Dokinomicon"
-                  VITE_SUB_DOMAIN: "www"
-                  VITE_ENVIRONMENT: "prod"
               run: npm run build
 
             - name: Deploy to Cloudflare
