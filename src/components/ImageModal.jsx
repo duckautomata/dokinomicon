@@ -20,6 +20,9 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
     const [copiedImage, setCopiedImage] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [lastSelectedIndex, setLastSelectedIndex] = useState(selectedIndex);
+    const [fileSize, setFileSize] = useState(null);
+    const [dimensions, setDimensions] = useState(null);
+
     const image = images[selectedIndex];
 
     if (selectedIndex !== lastSelectedIndex) {
@@ -27,7 +30,41 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
         setCopiedLink(false);
         setCopiedImage(false);
         setErrorMsg("");
+        setFileSize(null);
+        setDimensions(null);
     }
+
+    // Fetch file size when image changes
+    useEffect(() => {
+        if (!image) return;
+
+        let isMounted = true;
+        const fetchSize = async () => {
+            try {
+                const response = await fetch(image.urlOrig, { method: "HEAD" });
+                const contentLength = response.headers.get("content-length");
+                if (contentLength && isMounted) {
+                    const size = parseInt(contentLength, 10);
+                    if (size > 1024 * 1024) {
+                        setFileSize((size / (1024 * 1024)).toFixed(2) + " MB");
+                    } else if (size > 1024) {
+                        setFileSize((size / 1024).toFixed(2) + " KB");
+                    } else {
+                        setFileSize(size + " B");
+                    }
+                }
+            } catch (e) {
+                // Silently handle if we can't fetch it, maybe CORS or network issue
+                LOG_ERROR("Failed to fetch file size:", e);
+            }
+        };
+
+        fetchSize();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [image]);
 
     const handleBackgroundClick = (e) => {
         if (
@@ -141,6 +178,14 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
         document.body.removeChild(link);
     };
 
+    const handleImageLoad = (e) => {
+        setDimensions(`${e.target.naturalWidth} × ${e.target.naturalHeight}`);
+    };
+
+    const handleVideoLoad = (e) => {
+        setDimensions(`${e.target.videoWidth} × ${e.target.videoHeight}`);
+    };
+
     return (
         <div className="modal-overlay" onClick={handleBackgroundClick}>
             {errorMsg && <div className="modal-error-popup">{errorMsg}</div>}
@@ -151,12 +196,20 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
 
                 <div className="modal-image-container">
                     {image.image_ext === ".mp4" ? (
-                        <video src={image.urlOrig} className="modal-image checkerboard-bg" controls autoPlay loop />
+                        <video
+                            src={image.urlOrig}
+                            className="modal-image checkerboard-bg"
+                            controls
+                            autoPlay
+                            loop
+                            onLoadedMetadata={handleVideoLoad}
+                        />
                     ) : (
                         <img
                             src={image.urlWebp}
                             alt={image.image_name || "Gallery image"}
                             className="modal-image checkerboard-bg"
+                            onLoad={handleImageLoad}
                         />
                     )}
 
@@ -199,6 +252,9 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
                                 </a>
                             )}
                             <span className="modal-tag id-tag">ID: {image.image_id}</span>
+                            {dimensions && <span className="modal-tag dim-tag">{dimensions}</span>}
+                            {fileSize && <span className="modal-tag size-tag">{fileSize}</span>}
+                            <span className="modal-tag ext-tag">Original: {image.image_ext.toUpperCase()}</span>
                         </div>
                     </div>
 
