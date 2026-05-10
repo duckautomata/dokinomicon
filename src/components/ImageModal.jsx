@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import "./ImageModal.css";
 import { LOG_ERROR } from "../utils/debug";
+import { isUrl } from "../utils/textUtils";
 
 /**
  * @typedef {import("../store/types").ImageData} ImageData
@@ -239,18 +240,27 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
                         <h3 className="modal-title">{image.image_name || "Untitled"}</h3>
                         <div className="modal-meta">
                             {image.image_type && <span className="modal-tag type-tag">{image.image_type}</span>}
-                            {image.source && (
-                                <a
-                                    href={image.source}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="modal-tag source-tag"
-                                    style={{ textDecoration: "none" }}
-                                >
-                                    <span style={{ marginRight: "4px" }}>🔗</span>
-                                    Source
-                                </a>
-                            )}
+                            {image.source &&
+                                (isUrl(image.source) ? (
+                                    <a
+                                        href={
+                                            image.source.trim().startsWith("www.")
+                                                ? `https://${image.source.trim()}`
+                                                : image.source
+                                        }
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="modal-tag source-tag"
+                                        style={{ textDecoration: "none" }}
+                                    >
+                                        <span style={{ marginRight: "4px" }}>🔗</span>
+                                        Source
+                                    </a>
+                                ) : (
+                                    <span className="modal-tag source-tag" title={image.source}>
+                                        Source: {image.source}
+                                    </span>
+                                ))}
                             <span className="modal-tag id-tag">ID: {image.image_id}</span>
                             {dimensions && <span className="modal-tag dim-tag">{dimensions}</span>}
                             {fileSize && <span className="modal-tag size-tag">{fileSize}</span>}

@@ -70,4 +70,38 @@ describe("ImageModal", () => {
 
         expect(mockOnClose).toHaveBeenCalled();
     });
+
+    it("renders the source as a link when it is a URL", () => {
+        const images = [
+            {
+                image_name: "With URL source",
+                urlWebp: "x.webp",
+                image_ext: ".webp",
+                source: "https://twitter.com/artist/status/123",
+            },
+        ];
+        render(<ImageModal images={images} selectedIndex={0} onClose={mockOnClose} onNavigate={mockOnNavigate} />);
+
+        const link = screen.getByRole("link", { name: /Source/i });
+        expect(link).toHaveAttribute("href", "https://twitter.com/artist/status/123");
+        expect(link).toHaveAttribute("target", "_blank");
+        // No "Source: ..." plain text version when it's a link
+        expect(screen.queryByText(/^Source:/)).not.toBeInTheDocument();
+    });
+
+    it("renders the source as plain text when it is not a URL", () => {
+        const images = [
+            {
+                image_name: "With text source",
+                urlWebp: "x.webp",
+                image_ext: ".webp",
+                source: "@artist_handle",
+            },
+        ];
+        render(<ImageModal images={images} selectedIndex={0} onClose={mockOnClose} onNavigate={mockOnNavigate} />);
+
+        // Shown as a text badge, not a link
+        expect(screen.queryByRole("link", { name: /Source/i })).not.toBeInTheDocument();
+        expect(screen.getByText(/Source: @artist_handle/)).toBeInTheDocument();
+    });
 });

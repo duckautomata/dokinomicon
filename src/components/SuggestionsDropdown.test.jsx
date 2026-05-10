@@ -1,11 +1,13 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import SuggestionsDropdown from "./SuggestionsDropdown";
-import { new_doki_form, general_form, edit_doki_form } from "../config";
+
+const renderWithRouter = (ui) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
 describe("SuggestionsDropdown", () => {
     it("renders the button initially closed", () => {
-        render(<SuggestionsDropdown />);
+        renderWithRouter(<SuggestionsDropdown />);
         const button = screen.getByRole("button", { name: /Suggestions/i });
         expect(button).toBeInTheDocument();
         expect(button).toHaveAttribute("aria-expanded", "false");
@@ -15,25 +17,22 @@ describe("SuggestionsDropdown", () => {
     });
 
     it("opens the dropdown when clicked", () => {
-        render(<SuggestionsDropdown />);
+        renderWithRouter(<SuggestionsDropdown />);
         const button = screen.getByRole("button", { name: /Suggestions/i });
 
         fireEvent.click(button);
 
         expect(button).toHaveAttribute("aria-expanded", "true");
 
-        // Dropdown items should be visible
         const newDokiLink = screen.getByText("New Doki").closest("a");
         const generalLink = screen.getByText("General Suggestion").closest("a");
-        const editLink = screen.getByText("Edit Doki").closest("a");
 
-        expect(newDokiLink).toHaveAttribute("href", new_doki_form);
-        expect(generalLink).toHaveAttribute("href", general_form);
-        expect(editLink).toHaveAttribute("href", edit_doki_form);
+        expect(newDokiLink).toHaveAttribute("href", "/add");
+        expect(generalLink).toHaveAttribute("href", "/suggestion");
     });
 
     it("closes the dropdown when clicking outside", () => {
-        render(<SuggestionsDropdown />);
+        renderWithRouter(<SuggestionsDropdown />);
         const button = screen.getByRole("button", { name: /Suggestions/i });
 
         fireEvent.click(button); // open it

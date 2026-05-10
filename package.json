@@ -5,6 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "dev:mock": "vite --mode mock",
         "build": "vite build",
         "preview": "vite preview",
         "format": "oxfmt .",
@@ -16,10 +17,10 @@
     },
     "dependencies": {
         "papaparse": "^5.5.3",
-        "react": "^19.2.5",
-        "react-dom": "^19.2.5",
-        "react-router-dom": "^7.14.2",
-        "zustand": "^5.0.12"
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "react-router-dom": "^7.15.0",
+        "zustand": "^5.0.13"
     },
     "devDependencies": {
         "@testing-library/dom": "^10.4.1",
@@ -29,10 +30,10 @@
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^6.0.1",
         "jsdom": "^29.1.1",
-        "oxfmt": "^0.47.0",
-        "oxlint": "^1.62.0",
-        "vite": "^8.0.10",
+        "oxfmt": "^0.48.0",
+        "oxlint": "^1.63.0",
+        "vite": "^8.0.11",
         "vitest": "^4.1.5",
-        "wrangler": "^4.87.0"
+        "wrangler": "^4.90.0"
     }
 }
