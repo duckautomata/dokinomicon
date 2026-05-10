@@ -1,12 +1,10 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
+import { Outlet, Link, NavLink, useLocation } from "react-router-dom";
 import { loadDokiData } from "./utils/dataLoader";
 import { useAppStore } from "./store/store";
-import Home from "./pages/Home";
-import View from "./pages/View";
 import UpdateAlert from "./components/UpdateAlert";
 import EnvironmentBadge from "./components/EnvironmentBadge";
-import Images from "./pages/Images";
+import MockApiBadge from "./components/MockApiBadge";
 import ScrollToTop from "./components/ScrollToTop";
 import SuggestionsDropdown from "./components/SuggestionsDropdown";
 import "./App.css";
@@ -90,27 +88,25 @@ export default function App() {
                         Dokinomicon
                     </Link>
                     <EnvironmentBadge />
+                    <MockApiBadge />
                 </div>
                 <nav className="nav-links">
                     <div className="nav-main-links">
-                        <NavLink to="/" className="nav-link nav-home">
+                        <NavLink to="/" end className="nav-link nav-home">
                             Home
                         </NavLink>
                         <NavLink to="/image" className="nav-link nav-images">
                             Images
                         </NavLink>
                         <EnvironmentBadge className="mobile-only" />
+                        <MockApiBadge className="mobile-only" />
                         <SuggestionsDropdown />
                     </div>
                     <ScrollToTop />
                 </nav>
             </header>
             <main className="content">
-                <Routes>
-                    <Route path="/" element={<Home data={data} />} />
-                    <Route path="/image" element={<Images data={data} />} />
-                    <Route path="/view/:doki_id" element={<View data={data} />} />
-                </Routes>
+                <Outlet context={{ data }} />
             </main>
         </>
     );
