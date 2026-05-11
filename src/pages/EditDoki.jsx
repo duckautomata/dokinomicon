@@ -11,7 +11,7 @@ import "./SuggestionForms.css";
  * @typedef {import("../store/types").DokiData} DokiData
  */
 
-const IMAGE_TYPES = ["Headshot", "Reference", "Screenshot", "Asset"];
+const IMAGE_TYPES = ["Headshot", "Reference", "Screenshot", "Asset", "Other"];
 
 const tagsToText = (tags) => (Array.isArray(tags) ? tags.join(", ") : "");
 
@@ -80,7 +80,7 @@ export default function EditDoki({ data }) {
 
     // Flatten the doki's existing images across all type buckets into a single
     // ordered list. We keep the original type-grouping order (Headshot,
-    // Reference, Screenshot, Asset) so the rows render predictably.
+    // Reference, Screenshot, Asset, Other) so the rows render predictably.
     const allExistingImages = useMemo(() => {
         if (!doki) return [];
         return [
@@ -88,6 +88,7 @@ export default function EditDoki({ data }) {
             ...(doki.images?.Reference ?? []),
             ...(doki.images?.Screenshot ?? []),
             ...(doki.images?.Asset ?? []),
+            ...(doki.images?.Other ?? []),
         ];
     }, [doki]);
 
@@ -769,7 +770,10 @@ export default function EditDoki({ data }) {
                                                 <strong>Screenshot</strong> — captures from a stream or video
                                             </li>
                                             <li>
-                                                <strong>Asset</strong> — anything else
+                                                <strong>Asset</strong> — images that can be used for edits or creations
+                                            </li>
+                                            <li>
+                                                <strong>Other</strong> — anything else
                                             </li>
                                         </ul>
                                     </details>

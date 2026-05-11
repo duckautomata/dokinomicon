@@ -26,6 +26,7 @@ export default function View({ data }) {
         const references = doki.images?.Reference || [];
         const screenshots = doki.images?.Screenshot || [];
         const assets = doki.images?.Asset || [];
+        const others = doki.images?.Other || [];
 
         const images = [];
 
@@ -43,7 +44,10 @@ export default function View({ data }) {
         // 4. Asset images
         images.push(...assets);
 
-        // 5. Other Headshots
+        // 5. Other images
+        images.push(...others);
+
+        // 6. Other Headshots
         if (headshots.length > 1) {
             images.push(...headshots.slice(1));
         }
@@ -185,6 +189,7 @@ export default function View({ data }) {
             {renderImageGroup("Reference", doki.images?.Reference)}
             {renderImageGroup("Screenshot", doki.images?.Screenshot)}
             {renderImageGroup("Asset", doki.images?.Asset)}
+            {renderImageGroup("Other", doki.images?.Other)}
             {renderImageGroup("Other Headshots", doki.images?.Headshot?.slice(1))}
 
             {selectedImageIndex !== null && (

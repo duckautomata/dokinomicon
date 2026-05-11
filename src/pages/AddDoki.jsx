@@ -11,7 +11,7 @@ import "./SuggestionForms.css";
  * @typedef {import("../store/types").DokiData} DokiData
  */
 
-const IMAGE_TYPES = ["Headshot", "Reference", "Screenshot", "Asset"];
+const IMAGE_TYPES = ["Headshot", "Reference", "Screenshot", "Asset", "Other"];
 
 /**
  * @param {Object} props
@@ -448,7 +448,10 @@ export default function AddDoki({ data = [] }) {
                                         <strong>Screenshot</strong> — captures from a stream or video
                                     </li>
                                     <li>
-                                        <strong>Asset</strong> — anything else
+                                        <strong>Asset</strong> — images that can be used for edits or creations
+                                    </li>
+                                    <li>
+                                        <strong>Other</strong> — anything else
                                     </li>
                                 </ul>
                             </details>
