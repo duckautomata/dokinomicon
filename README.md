@@ -30,6 +30,12 @@ _Development_
 
 Every time you save, Vite will automatically refresh the cache and the site should refresh with the new changes.
 
+#### Update Command
+
+```bash
+npx npm-check-updates -u --cooldown 7; npm ci; npm audit; npm audit signatures --min-release-age=0
+```
+
 ### Contributing
 
 1. create a branch and put your code onto it.

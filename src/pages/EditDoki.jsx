@@ -61,6 +61,10 @@ export default function EditDoki({ data }) {
     // toggles when they want to suggest removing the image.
     const [existingImageState, setExistingImageState] = useState({});
 
+    // `null` = waiting on the widget; `""` = Turnstile disabled by the server
+    // (submit-ready immediately); any other string = an actual issued token.
+    // The page is submittable whenever this is non-null, so `=== null` is the
+    // canonical "still waiting" check.
     const [turnstileToken, setTurnstileToken] = useState(null);
     const turnstileResetRef = useRef(null);
     const isUploadingRef = useRef(false);
@@ -101,6 +105,20 @@ export default function EditDoki({ data }) {
             });
     }, []);
 
+    // Server-controlled toggle. Default to enabled if the field is missing
+    // (older backend that doesn't return it yet) so we never accidentally
+    // bypass verification when we shouldn't.
+    const turnstileEnabled = cfg?.turnstile_enabled ?? true;
+
+    // When the server says Turnstile is off, the widget never mounts so it
+    // never emits onToken(""). Sync the token state here so submit gates open
+    // as soon as the page is interactive.
+    useEffect(() => {
+        if (cfg && !turnstileEnabled) {
+            setTurnstileToken("");
+        }
+    }, [cfg, turnstileEnabled]);
+
     useEffect(() => {
         if (!doki) return;
         setName(doki.name ?? "");
@@ -135,7 +153,7 @@ export default function EditDoki({ data }) {
     }, [headFile]);
 
     useEffect(() => {
-        if (pickedQueue.length === 0 || !turnstileToken || busy) return;
+        if (pickedQueue.length === 0 || turnstileToken === null || busy) return;
         if (isUploadingRef.current) return;
         isUploadingRef.current = true;
 
@@ -231,10 +249,10 @@ export default function EditDoki({ data }) {
         existingImageChanges.edits.length > 0 || existingImageChanges.deletes.length > 0;
     const canSubmitEdit =
         (editHasFieldChanges || editHasNewImages || editHasExistingImageChanges) &&
-        !!turnstileToken &&
+        turnstileToken !== null &&
         !busy &&
         name.trim().length > 0;
-    const canSubmitDelete = reason.trim().length > 0 && !!turnstileToken && !busy;
+    const canSubmitDelete = reason.trim().length > 0 && turnstileToken !== null && !busy;
 
     const isDirty =
         !success &&
@@ -446,7 +464,7 @@ export default function EditDoki({ data }) {
     let dropzoneOverlay = null;
     if (busy === "uploading") {
         dropzoneOverlay = pickedQueue.length > 1 ? `Uploading… (${pickedQueue.length} left)` : "Uploading…";
-    } else if (pickedQueue.length > 0 && !turnstileToken) {
+    } else if (pickedQueue.length > 0 && turnstileToken === null) {
         dropzoneOverlay = "Waiting for verification…";
     }
 
@@ -834,14 +852,17 @@ export default function EditDoki({ data }) {
                         </>
                     )}
 
-                    <div className="suggestion-turnstile-block">
-                        <span className="suggestion-field-hint">Human verification:</span>
-                        <TurnstileWidget
-                            siteKey={cfg.turnstile_site_key}
-                            onToken={setTurnstileToken}
-                            resetRef={turnstileResetRef}
-                        />
-                    </div>
+                    {turnstileEnabled && (
+                        <div className="suggestion-turnstile-block">
+                            <span className="suggestion-field-hint">Human verification:</span>
+                            <TurnstileWidget
+                                enabled={turnstileEnabled}
+                                siteKey={cfg.turnstile_site_key}
+                                onToken={setTurnstileToken}
+                                resetRef={turnstileResetRef}
+                            />
+                        </div>
+                    )}
 
                     {error && <div className="suggestion-status error">{error}</div>}
 

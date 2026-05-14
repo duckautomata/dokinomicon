@@ -3,6 +3,7 @@ import { LOG_MSG } from "./debug";
 
 const MOCK_CONFIG = Object.freeze({
     turnstile_site_key: "mock-site-key",
+    turnstile_enabled: true,
     allowed_sites: ["dokimotes", "dokinomicon"],
     max_image_bytes: 26214400,
     supported_formats: ["jpg", "jpeg", "png", "webp", "avif", "gif", "mp4"],

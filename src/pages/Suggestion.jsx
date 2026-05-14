@@ -13,6 +13,10 @@ export default function Suggestion() {
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
 
+    // `null` = waiting on the widget; `""` = Turnstile disabled by the server
+    // (submit-ready immediately); any other string = an actual issued token.
+    // The page is submittable whenever this is non-null, so `=== null` is the
+    // canonical "still waiting" check.
     const [turnstileToken, setTurnstileToken] = useState(null);
     const turnstileResetRef = useRef(null);
 
@@ -29,7 +33,21 @@ export default function Suggestion() {
             });
     }, []);
 
-    const canSubmit = message.trim().length > 0 && !!turnstileToken && !busy;
+    // Server-controlled toggle. Default to enabled if the field is missing
+    // (older backend that doesn't return it yet) so we never accidentally
+    // bypass verification when we shouldn't.
+    const turnstileEnabled = cfg?.turnstile_enabled ?? true;
+
+    // When the server says Turnstile is off, the widget never mounts so it
+    // never emits onToken(""). Sync the token state here so submit gates open
+    // as soon as the page is interactive.
+    useEffect(() => {
+        if (cfg && !turnstileEnabled) {
+            setTurnstileToken("");
+        }
+    }, [cfg, turnstileEnabled]);
+
+    const canSubmit = message.trim().length > 0 && turnstileToken !== null && !busy;
     const isDirty = !success && (subject.trim().length > 0 || message.trim().length > 0);
 
     const handleSubmit = async (e) => {
@@ -139,14 +157,17 @@ export default function Suggestion() {
                         />
                     </div>
 
-                    <div className="suggestion-turnstile-block">
-                        <span className="suggestion-field-hint">Human verification:</span>
-                        <TurnstileWidget
-                            siteKey={cfg.turnstile_site_key}
-                            onToken={setTurnstileToken}
-                            resetRef={turnstileResetRef}
-                        />
-                    </div>
+                    {turnstileEnabled && (
+                        <div className="suggestion-turnstile-block">
+                            <span className="suggestion-field-hint">Human verification:</span>
+                            <TurnstileWidget
+                                enabled={turnstileEnabled}
+                                siteKey={cfg.turnstile_site_key}
+                                onToken={setTurnstileToken}
+                                resetRef={turnstileResetRef}
+                            />
+                        </div>
+                    )}
 
                     {error && <div className="suggestion-status error">{error}</div>}
 
