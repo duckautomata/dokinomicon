@@ -33,7 +33,7 @@ Every time you save, Vite will automatically refresh the cache and the site shou
 #### Update Command
 
 ```bash
-npx npm-check-updates -u --cooldown 7; npm ci; npm audit; npm audit signatures --min-release-age=0
+npx npm-check-updates -u --cooldown 7; npm install; npm audit; npm audit signatures --min-release-age=0
 ```
 
 ### Contributing
