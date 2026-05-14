@@ -8,12 +8,10 @@ export default {
         }
 
         // 1. Attempt to fetch the requested asset
-        const response = await env.ASSETS.fetch(request);
+        let response = await env.ASSETS.fetch(request);
 
-        // 2. Handle 404s
+        // 2. Handle 404s with SPA fallback
         if (response.status === 404) {
-            const url = new URL(request.url);
-
             // Check if the URL path ends with a file extension (e.g., .css, .js, .png)
             const hasFileExtension = url.pathname.match(/\.[a-z0-9]+$/i);
 
@@ -23,11 +21,23 @@ export default {
             }
 
             // It's a navigation route (no extension). Fallback to the SPA's root.
-            url.pathname = "/dokinomicon/";
-            return env.ASSETS.fetch(new Request(url, request));
+            const fallbackUrl = new URL(url);
+            fallbackUrl.pathname = "/dokinomicon/";
+            response = await env.ASSETS.fetch(new Request(fallbackUrl, request));
         }
 
-        // 3. Return the successfully found asset
+        // 3. Prevent transient edge failures from poisoning the browser's
+        //    prefetch cache. Chrome speculatively prefetches links the user
+        //    might click; if any of those prefetches hits a 5xx (CF edge cold
+        //    start, brief origin blip, etc.), the browser will reuse the
+        //    cached failure on the actual click. Marking the response
+        //    `no-store` evicts it so the click gets a fresh response.
+        if (response.status >= 500) {
+            const out = new Response(response.body, response);
+            out.headers.set("Cache-Control", "no-store");
+            return out;
+        }
+
         return response;
     },
 };
