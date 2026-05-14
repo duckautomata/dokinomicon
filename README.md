@@ -36,6 +36,8 @@ Every time you save, Vite will automatically refresh the cache and the site shou
 npx npm-check-updates -u --cooldown 7; npm install; npm audit; npm audit signatures --min-release-age=0
 ```
 
+if any of the install/update commands are failing, you can add `--min-release-age=0` to it to bypass the minimum release age restriction.
+
 ### Contributing
 
 1. create a branch and put your code onto it.

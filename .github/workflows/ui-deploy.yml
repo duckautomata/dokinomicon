@@ -14,7 +14,6 @@ on:
             - "index.html"
             - "package.json"
             - "package-lock.json"
-            - "playwright.*"
             - "vite.config.*"
             - "wrangler.toml"
             - ".github/workflows/ui-deploy.yml"
