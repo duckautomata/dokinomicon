@@ -5,6 +5,7 @@ import ImageDropZone from "../components/ImageDropZone";
 import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
 import { fetchPublicConfig, uploadImage, submitSuggestion, validateImageFile } from "../utils/contentApi";
 import { LOG_ERROR } from "../utils/debug";
+import notFoundImage from "../assets/404.png";
 import "./SuggestionForms.css";
 
 /**
@@ -234,6 +235,7 @@ export default function EditDoki({ data }) {
                     <span className="back-arrow">←</span> Back to Gallery
                 </Link>
                 <div className="suggestion-card glass-panel">
+                    <img src={notFoundImage} alt="Not found" className="not-found-image" />
                     <h1 className="suggestion-title">Doki not found</h1>
                     <p className="suggestion-subtitle">
                         No doki was found with id <code>{doki_id}</code>.

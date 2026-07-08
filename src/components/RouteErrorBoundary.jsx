@@ -1,5 +1,6 @@
 import { Link, useRouteError, isRouteErrorResponse } from "react-router-dom";
 import { LOG_ERROR } from "../utils/debug";
+import notFoundImage from "../assets/404.png";
 import "../pages/SuggestionForms.css";
 
 /**
@@ -26,7 +27,8 @@ export default function RouteErrorBoundary() {
 
     return (
         <div className="suggestion-page">
-            <div className="suggestion-card glass-panel">
+            <div className="suggestion-card glass-panel route-error-card">
+                <img src={notFoundImage} alt="Not found" className="not-found-image" />
                 <h1 className="suggestion-title">{title}</h1>
                 <p className="suggestion-subtitle">{detail}</p>
                 {showStack && <pre className="route-error-stack">{error.stack}</pre>}

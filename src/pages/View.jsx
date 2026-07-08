@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ImageModal from "../components/ImageModal";
 import { renderTextWithLinks } from "../utils/textUtils";
+import notFoundImage from "../assets/404.png";
 import "./View.css";
 
 /**
@@ -58,6 +59,7 @@ export default function View({ data }) {
     if (!doki)
         return (
             <div className="view-not-found">
+                <img src={notFoundImage} alt="Not found" className="not-found-image" />
                 <h2>Doki not found</h2>
                 <Link to="/" className="back-link">
                     Return Home

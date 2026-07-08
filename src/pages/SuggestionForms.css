@@ -31,6 +31,14 @@
     padding: 2rem;
 }
 
+.not-found-image {
+    display: block;
+    max-width: 1024px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 1.5rem;
+}
+
 .suggestion-title {
     font-size: 2rem;
     font-weight: 800;
@@ -796,7 +804,16 @@
     color: var(--text-secondary);
 }
 
+.route-error-card {
+    text-align: center;
+}
+
+.route-error-card .suggestion-actions {
+    justify-content: center;
+}
+
 .route-error-stack {
+    text-align: left;
     margin: 1rem 0 1.25rem 0;
     padding: 0.75rem 1rem;
     background: rgba(220, 38, 38, 0.08);
