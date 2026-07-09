@@ -16,6 +16,21 @@ const URL_REGEX_EXACT = new RegExp(`^(?:${URL_BODY})$`);
 export const isUrl = (text) => !!text && URL_REGEX_EXACT.test(text.trim());
 
 /**
+ * Sanitizes a string for use as a filename. Replaces characters that are
+ * illegal on common filesystems (/ \ : * ? " < > |) with underscores and
+ * trims surrounding whitespace. Returns `fallback` when nothing usable remains.
+ *
+ * @param {string | null | undefined} name
+ * @param {string} [fallback="image"]
+ * @returns {string}
+ */
+export const sanitizeFilename = (name, fallback = "image") => {
+    if (!name) return fallback;
+    const cleaned = name.replace(/[/\\:*?"<>|]/g, "_").trim();
+    return cleaned || fallback;
+};
+
+/**
  * Renders text, converting URLs into clickable external links.
  *
  * @param {string} text - The input text to process

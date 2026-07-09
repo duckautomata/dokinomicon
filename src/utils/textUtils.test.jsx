@@ -1,9 +1,34 @@
 import { describe, it, expect, test } from "vitest";
-import { renderTextWithLinks } from "./textUtils";
+import { renderTextWithLinks, sanitizeFilename } from "./textUtils";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
 describe("textUtils", () => {
+    describe("sanitizeFilename", () => {
+        it("returns the fallback for empty/nullish names", () => {
+            expect(sanitizeFilename("")).toBe("image");
+            expect(sanitizeFilename(null)).toBe("image");
+            expect(sanitizeFilename(undefined)).toBe("image");
+            expect(sanitizeFilename("", "abc123")).toBe("abc123");
+        });
+
+        it("replaces illegal filesystem characters with underscores", () => {
+            expect(sanitizeFilename('a/b\\c:d*e?f"g<h>i|j')).toBe("a_b_c_d_e_f_g_h_i_j");
+        });
+
+        it("trims surrounding whitespace", () => {
+            expect(sanitizeFilename("  Happy Cat  ")).toBe("Happy Cat");
+        });
+
+        it("returns the fallback when only whitespace remains", () => {
+            expect(sanitizeFilename("   ", "fallback")).toBe("fallback");
+        });
+
+        it("leaves valid names untouched", () => {
+            expect(sanitizeFilename("Happy Cat (1)")).toBe("Happy Cat (1)");
+        });
+    });
+
     describe("renderTextWithLinks", () => {
         it("returns the original text if empty or null", () => {
             expect(renderTextWithLinks(null)).toBeNull();

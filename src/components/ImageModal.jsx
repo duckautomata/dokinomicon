@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import "./ImageModal.css";
 import { LOG_ERROR } from "../utils/debug";
-import { isUrl } from "../utils/textUtils";
+import { isUrl, sanitizeFilename } from "../utils/textUtils";
 
 /**
  * @typedef {import("../store/types").ImageData} ImageData
@@ -23,6 +23,7 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
     const [lastSelectedIndex, setLastSelectedIndex] = useState(selectedIndex);
     const [fileSize, setFileSize] = useState(null);
     const [dimensions, setDimensions] = useState(null);
+    const [dragUrl, setDragUrl] = useState(null);
 
     const image = images[selectedIndex];
 
@@ -64,6 +65,37 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
 
         return () => {
             isMounted = false;
+        };
+    }, [image]);
+
+    // Prepare a same-origin blob: URL so dragging the image out of the browser
+    // (into Discord, the file explorer, etc.) saves it with a meaningful name.
+    // Chromium honors the `DownloadURL` drag payload, but only when its URL is
+    // same-origin — the CDN is a different origin, so we proxy the bytes through
+    // a blob. Videos are skipped; drag-out naming only applies to <img>.
+    useEffect(() => {
+        if (!image || image.image_ext === ".mp4") return;
+
+        let objectUrl = null;
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const response = await fetch(image.urlWebp);
+                const blob = await response.blob();
+                if (cancelled) return;
+                objectUrl = URL.createObjectURL(blob);
+                setDragUrl(objectUrl);
+            } catch (e) {
+                // Non-fatal: the browser just falls back to default drag naming.
+                LOG_ERROR("Failed to prepare drag image:", e);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            setDragUrl(null);
         };
     }, [image]);
 
@@ -179,6 +211,14 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
         document.body.removeChild(link);
     };
 
+    const handleImageDragStart = (e) => {
+        // Not ready yet → do nothing and let the browser use its default drag.
+        if (!dragUrl) return;
+        // Bytes are the displayed WebP, so mime + extension match.
+        const fileName = `${sanitizeFilename(image.image_name, image.image_id)}.webp`;
+        e.dataTransfer.setData("DownloadURL", `image/webp:${fileName}:${dragUrl}`);
+    };
+
     const handleImageLoad = (e) => {
         setDimensions(`${e.target.naturalWidth} × ${e.target.naturalHeight}`);
     };
@@ -211,6 +251,7 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
                             alt={image.image_name || "Gallery image"}
                             className="modal-image checkerboard-bg"
                             onLoad={handleImageLoad}
+                            onDragStart={handleImageDragStart}
                         />
                     )}
 
