@@ -6,7 +6,7 @@ const URL_REGEX_GLOBAL = new RegExp(`(${URL_BODY})`, "g");
 const URL_REGEX_EXACT = new RegExp(`^(?:${URL_BODY})$`);
 
 /**
- * Returns true if the given (trimmed) text is itself a URL — http://, https://,
+ * Returns true if the given (trimmed) text is itself a URL, http://, https://,
  * or www.-prefixed. Use to decide whether a string should render as a clickable
  * link or as plain text.
  *

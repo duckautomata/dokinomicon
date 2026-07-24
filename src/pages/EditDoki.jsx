@@ -3,7 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import TurnstileWidget from "../components/TurnstileWidget";
 import ImageDropZone from "../components/ImageDropZone";
 import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
+import ConfirmSubmitModal from "../components/ConfirmSubmitModal";
 import { fetchPublicConfig, uploadImage, submitSuggestion, validateImageFile } from "../utils/contentApi";
+import { saveSuggestionId } from "../utils/suggestionIds";
 import { LOG_ERROR } from "../utils/debug";
 import notFoundImage from "../assets/404.png";
 import "./SuggestionForms.css";
@@ -73,6 +75,7 @@ export default function EditDoki({ data }) {
     const [busy, setBusy] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const groupOptions = useMemo(() => {
         const set = new Set();
@@ -342,12 +345,21 @@ export default function EditDoki({ data }) {
         setError(null);
     };
 
-    const handleSubmit = async (e) => {
+    // Validate the active mode and open the confirmation modal; nothing is
+    // sent until the user confirms.
+    const handleSubmit = (e) => {
         e.preventDefault();
+        if (mode === "edit" ? !canSubmitEdit : !canSubmitDelete) return;
+        setError(null);
+        setConfirmOpen(true);
+    };
+
+    const performSubmit = async () => {
+        setConfirmOpen(false);
         setError(null);
 
         if (mode === "edit") {
-            if (!canSubmitEdit) return;
+            if (!canSubmitEdit) return; // re-check; state may have changed
             setBusy("submitting");
             try {
                 const payload = {
@@ -375,6 +387,7 @@ export default function EditDoki({ data }) {
                     payload,
                     imageIds: uploadedImages.map((img) => img.id),
                 });
+                saveSuggestionId(result.id);
                 setSuccess(result);
             } catch (err) {
                 LOG_ERROR("Submit failed", err);
@@ -384,7 +397,7 @@ export default function EditDoki({ data }) {
                 turnstileResetRef.current?.();
             }
         } else {
-            if (!canSubmitDelete) return;
+            if (!canSubmitDelete) return; // re-check; state may have changed
             setBusy("submitting");
             try {
                 const result = await submitSuggestion({
@@ -395,6 +408,7 @@ export default function EditDoki({ data }) {
                         reason: reason.trim(),
                     },
                 });
+                saveSuggestionId(result.id);
                 setSuccess(result);
             } catch (err) {
                 LOG_ERROR("Submit failed", err);
@@ -443,12 +457,16 @@ export default function EditDoki({ data }) {
                     <h1 className="suggestion-title">Thanks!</h1>
                     <p className="suggestion-subtitle">
                         Your {mode === "delete" ? "deletion" : "edit"} suggestion has been submitted for review.
-                        Reference ID: <code>{success.id}</code>
+                        Reference ID: <code>{success.id}</code> (saved on this device, you can track it under My
+                        Suggestions).
                     </p>
                     <div className="suggestion-actions">
+                        <Link to="/my-suggestions" className="suggestion-submit-btn" style={{ textDecoration: "none" }}>
+                            View Status
+                        </Link>
                         <Link
                             to={`/view/${doki.doki_id}`}
-                            className="suggestion-submit-btn"
+                            className="suggestion-secondary-btn"
                             style={{ textDecoration: "none" }}
                         >
                             Back to Doki
@@ -473,6 +491,26 @@ export default function EditDoki({ data }) {
     return (
         <div className="suggestion-page">
             <UnsavedChangesGuard when={isDirty} />
+            <ConfirmSubmitModal
+                open={confirmOpen}
+                title={mode === "edit" ? "Submit edit?" : "Request deletion?"}
+                message={
+                    mode === "edit" ? (
+                        <>
+                            Submit your edit suggestion for <strong>{doki.name}</strong>?
+                        </>
+                    ) : (
+                        <>
+                            Request deletion of <strong>{doki.name}</strong>? An admin will review the request before
+                            anything is removed.
+                        </>
+                    )
+                }
+                confirmLabel={mode === "edit" ? "Submit" : "Request Deletion"}
+                danger={mode === "delete"}
+                onConfirm={performSubmit}
+                onCancel={() => setConfirmOpen(false)}
+            />
             <Link to={`/view/${doki.doki_id}`} className="suggestion-back">
                 <span className="back-arrow">←</span> Back to Doki
             </Link>

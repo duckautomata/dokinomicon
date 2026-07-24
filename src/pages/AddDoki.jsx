@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import TurnstileWidget from "../components/TurnstileWidget";
 import ImageDropZone from "../components/ImageDropZone";
 import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
+import ConfirmSubmitModal from "../components/ConfirmSubmitModal";
 import { fetchPublicConfig, uploadImage, submitSuggestion, validateImageFile } from "../utils/contentApi";
+import { saveSuggestionId } from "../utils/suggestionIds";
 import { LOG_ERROR } from "../utils/debug";
 import "./SuggestionForms.css";
 
@@ -48,6 +50,7 @@ export default function AddDoki({ data = [] }) {
     const [busy, setBusy] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const groupOptions = useMemo(() => {
         const set = new Set();
@@ -175,9 +178,18 @@ export default function AddDoki({ data = [] }) {
         setUploadedImages((prev) => prev.map((img) => (img.id === id ? { ...img, source: newSource } : img)));
     };
 
-    const handleSubmit = async (e) => {
+    // Validate and open the confirmation modal; nothing is sent until the
+    // user confirms.
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (!canSubmit) return;
+        setError(null);
+        setConfirmOpen(true);
+    };
+
+    const performSubmit = async () => {
+        setConfirmOpen(false);
+        if (!canSubmit) return; // re-check; state may have changed
         setError(null);
         setBusy("submitting");
         try {
@@ -203,6 +215,7 @@ export default function AddDoki({ data = [] }) {
                 payload,
                 imageIds: uploadedImages.map((img) => img.id),
             });
+            saveSuggestionId(result.id);
             setSuccess(result);
         } catch (err) {
             LOG_ERROR("Submit failed", err);
@@ -243,10 +256,14 @@ export default function AddDoki({ data = [] }) {
                 <div className="suggestion-card glass-panel">
                     <h1 className="suggestion-title">Thanks!</h1>
                     <p className="suggestion-subtitle">
-                        Your doki suggestion has been submitted for review. Reference ID: <code>{success.id}</code>
+                        Your doki suggestion has been submitted for review. Reference ID: <code>{success.id}</code>{" "}
+                        (saved on this device, you can track it under My Suggestions).
                     </p>
                     <div className="suggestion-actions">
-                        <Link to="/" className="suggestion-submit-btn" style={{ textDecoration: "none" }}>
+                        <Link to="/my-suggestions" className="suggestion-submit-btn" style={{ textDecoration: "none" }}>
+                            View Status
+                        </Link>
+                        <Link to="/" className="suggestion-secondary-btn" style={{ textDecoration: "none" }}>
                             Back to Gallery
                         </Link>
                     </div>
@@ -268,6 +285,18 @@ export default function AddDoki({ data = [] }) {
     return (
         <div className="suggestion-page">
             <UnsavedChangesGuard when={isDirty} />
+            <ConfirmSubmitModal
+                open={confirmOpen}
+                title="Submit suggestion?"
+                message={
+                    <>
+                        Submit the new doki <strong>{name.trim()}</strong> for review?
+                    </>
+                }
+                confirmLabel="Submit"
+                onConfirm={performSubmit}
+                onCancel={() => setConfirmOpen(false)}
+            />
             <Link to="/" className="suggestion-back">
                 <span className="back-arrow">←</span> Back to Gallery
             </Link>

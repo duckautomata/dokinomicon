@@ -3,7 +3,7 @@
 // Router config lives in its own module so `index.jsx` can stay a pure entry
 // point. This file still mixes component definitions (the outlet-context
 // wrappers below) with module-level side effects (createBrowserRouter), so
-// Vite Fast Refresh will full-reload when you edit it — but that's rare.
+// Vite Fast Refresh will full-reload when you edit it, but that's rare.
 import { createBrowserRouter, useOutletContext } from "react-router-dom";
 import App from "./App.jsx";
 import Home from "./pages/Home";
@@ -12,6 +12,7 @@ import Images from "./pages/Images";
 import AddDoki from "./pages/AddDoki";
 import EditDoki from "./pages/EditDoki";
 import Suggestion from "./pages/Suggestion";
+import SuggestionStatus from "./pages/SuggestionStatus";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
 const HomeRoute = () => {
@@ -57,6 +58,7 @@ export const router = createBrowserRouter(
                 { path: "add", element: <AddDokiRoute />, errorElement },
                 { path: "edit/:doki_id", element: <EditDokiRoute />, errorElement },
                 { path: "suggestion", element: <Suggestion />, errorElement },
+                { path: "my-suggestions", element: <SuggestionStatus />, errorElement },
             ],
         },
     ],

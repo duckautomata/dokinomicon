@@ -4,7 +4,7 @@ import * as mock from "./contentApi.mock";
 
 const impl = isMockMode ? mock : real;
 
-export const { fetchPublicConfig, uploadImage, submitSuggestion } = impl;
+export const { fetchPublicConfig, uploadImage, submitSuggestion, fetchSuggestionStatuses } = impl;
 
 export const validateImageFile = (file, cfg) => {
     if (!cfg) return null;

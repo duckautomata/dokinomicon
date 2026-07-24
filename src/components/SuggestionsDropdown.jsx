@@ -7,7 +7,7 @@ export default function SuggestionsDropdown() {
     const dropdownRef = useRef(null);
 
     // Surface a contextual "Edit current Doki" item when the user is viewing
-    // a doki — saves them from navigating to the doki's view to click the
+    // a doki, saves them from navigating to the doki's view to click the
     // inline Suggest Edit button.
     const viewMatch = useMatch("/view/:doki_id");
     const currentDokiId = viewMatch?.params?.doki_id;
@@ -49,6 +49,9 @@ export default function SuggestionsDropdown() {
                     )}
                     <Link to="/suggestion" onClick={close} className="dropdown-item">
                         <span>General Suggestion</span>
+                    </Link>
+                    <Link to="/my-suggestions" onClick={close} className="dropdown-item">
+                        <span>My Suggestions</span>
                     </Link>
                 </div>
             )}

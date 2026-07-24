@@ -152,7 +152,7 @@ function RealTurnstileWidget({ siteKey, onToken, resetRef }) {
 }
 
 /**
- * Cloudflare Turnstile widget. Each token is single-use — call resetRef.current()
+ * Cloudflare Turnstile widget. Each token is single-use, call resetRef.current()
  * after consuming a token to issue a fresh challenge. In mock mode (VITE_MOCK_API),
  * renders a placeholder and auto-issues fake tokens. When `enabled` is false
  * (typically because the public config endpoint returned `turnstile_enabled:

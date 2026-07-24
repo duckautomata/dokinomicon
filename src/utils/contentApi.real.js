@@ -63,3 +63,22 @@ export const submitSuggestion = async ({ token, kind, payload, imageIds = [], si
     }
     return res.json();
 };
+
+// The server accepts at most 50 ids per request; chunk so power users don't 400.
+const STATUS_CHUNK_SIZE = 50;
+
+export const fetchSuggestionStatuses = async (ids) => {
+    const unique = [...new Set(ids)];
+    const results = { suggestions: [], not_found: [] };
+    for (let i = 0; i < unique.length; i += STATUS_CHUNK_SIZE) {
+        const chunk = unique.slice(i, i + STATUS_CHUNK_SIZE);
+        const res = await fetch(`${contentApi}/public/suggestions?ids=${encodeURIComponent(chunk.join(","))}`);
+        if (!res.ok) {
+            throw new Error(await readErrorDetail(res));
+        }
+        const data = await res.json();
+        results.suggestions.push(...(data.suggestions ?? []));
+        results.not_found.push(...(data.not_found ?? []));
+    }
+    return results;
+};

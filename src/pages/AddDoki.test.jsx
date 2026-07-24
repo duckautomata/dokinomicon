@@ -43,7 +43,7 @@ describe("AddDoki", () => {
         expect(screen.getByLabelText(/^Tags/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/^Group$/i)).toBeInTheDocument();
         expect(screen.queryByLabelText(/Parent ID/i)).not.toBeInTheDocument();
-        // No pre-upload type radios or source field — those are edited per-row instead.
+        // No pre-upload type radios or source field, those are edited per-row instead.
         expect(screen.queryByRole("radio", { name: /Headshot/i })).not.toBeInTheDocument();
         expect(screen.queryByLabelText(/^Source/i)).not.toBeInTheDocument();
         expect(screen.getByText(/What does each type mean\?/i)).toBeInTheDocument();
