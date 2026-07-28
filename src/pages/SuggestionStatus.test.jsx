@@ -80,7 +80,9 @@ describe("SuggestionStatus", () => {
 
         // not_found row is rendered, not silently dropped
         expect(screen.getByText("not found")).toBeInTheDocument();
-        expect(screen.getByText(/may have been removed by an admin/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/removed by an admin, belong to another site, or the id is invalid/i),
+        ).toBeInTheDocument();
     });
 
     it("adds a manually entered id when it belongs to this site", async () => {
@@ -103,23 +105,26 @@ describe("SuggestionStatus", () => {
         expect(screen.getByLabelText(/Track another suggestion/i)).toHaveValue("");
     });
 
-    it("refuses to add an id that belongs to another site", async () => {
-        fetchSuggestionStatuses.mockResolvedValueOnce({
-            suggestions: [makeSuggestion({ id: "sug_motes", site: "dokimotes" })],
-            not_found: [],
-        });
+    it("re-reads the summary on refresh", async () => {
+        seedSavedIds(["sug_alpha"]);
+        fetchSuggestionStatuses.mockResolvedValue({ suggestions: [makeSuggestion()], not_found: [] });
 
         renderPage();
-        await waitFor(() => expect(screen.getByText(/No saved suggestions yet/i)).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText("Add the doki 'Alpha'")).toBeInTheDocument());
 
-        fireEvent.change(screen.getByLabelText(/Track another suggestion/i), { target: { value: "sug_motes" } });
-        fireEvent.click(screen.getByRole("button", { name: "Add" }));
+        fetchSuggestionStatuses.mockResolvedValue({
+            suggestions: [makeSuggestion({ summary: "Add the doki 'Alpha' (renamed by admin)" })],
+            not_found: [],
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
 
-        await waitFor(() => expect(screen.getByText(/belongs to dokimotes, not dokinomicon/i)).toBeInTheDocument());
-        expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+        await waitFor(() => expect(screen.getByText("Add the doki 'Alpha' (renamed by admin)")).toBeInTheDocument());
+        expect(screen.queryByText("Add the doki 'Alpha'")).not.toBeInTheDocument();
     });
 
-    it("refuses to add an id the server does not know", async () => {
+    // The lookup is scoped to this site server-side, so an id from another site
+    // is indistinguishable from an unknown one: both come back in not_found.
+    it("refuses to add an id the server does not return for this site", async () => {
         fetchSuggestionStatuses.mockResolvedValueOnce({
             suggestions: [],
             not_found: ["sug_missing"],
@@ -131,7 +136,9 @@ describe("SuggestionStatus", () => {
         fireEvent.change(screen.getByLabelText(/Track another suggestion/i), { target: { value: "sug_missing" } });
         fireEvent.click(screen.getByRole("button", { name: "Add" }));
 
-        await waitFor(() => expect(screen.getByText(/No suggestion was found with that id/i)).toBeInTheDocument());
+        await waitFor(() =>
+            expect(screen.getByText(/No dokinomicon suggestion was found with that id/i)).toBeInTheDocument(),
+        );
         expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
     });
 

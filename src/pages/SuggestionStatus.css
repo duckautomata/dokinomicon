@@ -1,9 +1,14 @@
+/* Title/subtitle on the left, Refresh pinned top-right beside them. No wrap:
+   the text column shrinks instead of pushing the button onto its own line. */
 .status-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    flex-wrap: wrap;
+}
+
+.status-header > div {
+    min-width: 0;
 }
 
 .status-refresh-btn {
@@ -14,16 +19,20 @@
 
 .status-list {
     list-style: none;
-    margin: 0 0 1.5rem 0;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
+.status-list:not(:empty) {
+    margin-bottom: 1.5rem;
+}
+
 .status-row {
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
     border: 1px solid var(--panel-border);
     background: rgba(0, 0, 0, 0.18);
 }
@@ -40,9 +49,9 @@
 }
 
 .status-pill {
-    padding: 0.2rem 0.65rem;
+    padding: 0.2rem 0.7rem;
     border-radius: 99px;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -100,73 +109,63 @@
 }
 
 .status-kind {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-secondary);
     flex-shrink: 0;
 }
 
+/* Headline of a row: the admin-authored one-liner saying what the suggestion
+   was for. Plain text, so keep the author's line breaks. */
+.status-summary {
+    margin: 0.55rem 0 0 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Sits inline at the end of the dates line, so it stays subdued. */
 .status-id {
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.8rem;
-    color: var(--text-primary);
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    padding: 0.15rem 0.45rem;
+    color: var(--text-secondary);
     word-break: break-all;
-    min-width: 0;
 }
 
 .status-remove-btn {
     margin-left: auto;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.45);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--panel-border);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     line-height: 1;
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .status-remove-btn:hover {
-    background: rgba(220, 38, 38, 0.85);
-    border-color: rgba(220, 38, 38, 0.6);
-}
-
-[data-theme="light"] .status-remove-btn {
-    background: rgba(0, 0, 0, 0.35);
-}
-
-/* Headline of a row: the admin-authored one-liner saying what the suggestion
-   was for. Plain text, so keep the author's line breaks. */
-.status-summary {
-    margin: 0.6rem 0 0 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.4;
-    white-space: pre-wrap;
-    word-break: break-word;
+    background: rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.5);
+    color: #f87171;
 }
 
 .status-meaning {
     margin: 0.5rem 0 0 0;
     font-size: 0.9rem;
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 
 .status-dates {
-    margin: 0.25rem 0 0 0;
+    margin: 0.3rem 0 0 0;
     font-size: 0.8rem;
     color: var(--text-secondary);
 }

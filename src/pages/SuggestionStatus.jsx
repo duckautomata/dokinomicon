@@ -88,19 +88,13 @@ export default function SuggestionStatus() {
         setManualError(null);
         setAdding(true);
         try {
-            // Only track suggestions that belong to this site, so look the id
-            // up before saving it. The lookup is already scoped to this site
-            // server-side (another site's id comes back as not found); the
-            // site check below is a belt-and-braces guard.
+            // Look the id up before saving it. The lookup is scoped to this
+            // site server-side, so ids from another site come back not_found.
             const data = await fetchSuggestionStatuses([id]);
             const suggestion = data.suggestions.find((s) => s.id === id);
             if (!suggestion) {
-                setManualError("No suggestion was found with that id, it may have been removed, or the id is wrong.");
-                return;
-            }
-            if (suggestion.site !== siteName) {
                 setManualError(
-                    `That suggestion belongs to ${suggestion.site}, not ${siteName}, so it can't be tracked here.`,
+                    `No ${siteName} suggestion was found with that id — it may belong to another site, have been removed, or the id is wrong.`,
                 );
                 return;
             }
@@ -188,7 +182,6 @@ export default function SuggestionStatus() {
                                             {KIND_LABELS[suggestion.kind] ?? suggestion.kind}
                                         </span>
                                     )}
-                                    <code className="status-id">{entry.id}</code>
                                     <button
                                         type="button"
                                         className="status-remove-btn"
@@ -200,16 +193,11 @@ export default function SuggestionStatus() {
                                     </button>
                                 </div>
 
+                                {suggestion?.summary && <p className="status-summary">{suggestion.summary}</p>}
+
                                 {suggestion && (
                                     <>
-                                        {suggestion.summary && <p className="status-summary">{suggestion.summary}</p>}
                                         <p className="status-meaning">{STATUS_MEANINGS[suggestion.status] ?? ""}</p>
-                                        <p className="status-dates">
-                                            Submitted {formatDate(suggestion.submitted_at)}
-                                            {suggestion.updated_at !== suggestion.submitted_at && (
-                                                <> · Updated {formatDate(suggestion.updated_at)}</>
-                                            )}
-                                        </p>
                                         {suggestion.admin_context !== "" && (
                                             <div className="status-feedback">
                                                 <span className="status-feedback-label">Admin feedback</span>
@@ -221,14 +209,27 @@ export default function SuggestionStatus() {
 
                                 {isMissing && (
                                     <p className="status-meaning">
-                                        Not found, it may have been removed by an admin, or the id is invalid. You can
-                                        remove it from this list with the ✕ button.
+                                        Not found, it may have been removed by an admin, belong to another site, or the
+                                        id is invalid. You can remove it from this list with the ✕ button.
                                     </p>
                                 )}
 
                                 {!suggestion && !isMissing && (
                                     <p className="status-meaning">{loading ? "Checking…" : "Status unavailable."}</p>
                                 )}
+
+                                <p className="status-dates">
+                                    {suggestion && (
+                                        <>
+                                            Submitted {formatDate(suggestion.submitted_at)}
+                                            {suggestion.updated_at !== suggestion.submitted_at && (
+                                                <> · Updated {formatDate(suggestion.updated_at)}</>
+                                            )}{" "}
+                                            ·{" "}
+                                        </>
+                                    )}
+                                    <code className="status-id">{entry.id}</code>
+                                </p>
                             </li>
                         );
                     })}
@@ -238,7 +239,7 @@ export default function SuggestionStatus() {
                     <label className="suggestion-field-label" htmlFor="status-add-id">
                         Track another suggestion{" "}
                         <span className="suggestion-field-hint">
-                            (paste a reference id from another device, {siteName} suggestions only)
+                            (paste a reference id from another device — {siteName} suggestions only)
                         </span>
                     </label>
                     <div className="status-add-row">

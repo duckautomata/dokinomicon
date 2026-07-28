@@ -1,4 +1,5 @@
 import { contentApi, siteName } from "../config";
+import { clampSummary } from "./suggestionSummary";
 
 let cachedConfig = null;
 let inFlightConfig = null;
@@ -46,23 +47,22 @@ export const uploadImage = async ({ token, file }) => {
     return res.json();
 };
 
-// Server cap on the human-readable one-liner sent with a suggestion. Omitting
-// it is allowed; the server then derives one from the payload.
-export const SUMMARY_MAX_LENGTH = 300;
+export const submitSuggestion = async ({ token, kind, payload, imageIds = [], site = siteName, summary }) => {
+    const body = {
+        cf_turnstile_response: token,
+        site,
+        kind,
+        payload,
+        image_ids: imageIds,
+    };
+    // Optional: omitting it lets the server generate one from the payload.
+    const trimmedSummary = clampSummary(summary);
+    if (trimmedSummary) body.summary = trimmedSummary;
 
-export const submitSuggestion = async ({ token, kind, payload, imageIds = [], summary = "", site = siteName }) => {
-    const trimmedSummary = summary.trim().slice(0, SUMMARY_MAX_LENGTH);
     const res = await fetch(`${contentApi}/public/suggestion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            cf_turnstile_response: token,
-            site,
-            kind,
-            payload,
-            image_ids: imageIds,
-            ...(trimmedSummary ? { summary: trimmedSummary } : {}),
-        }),
+        body: JSON.stringify(body),
     });
     if (!res.ok) {
         throw new Error(await readErrorDetail(res));

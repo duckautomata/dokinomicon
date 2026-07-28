@@ -394,16 +394,18 @@ export default function EditDoki({ data }) {
                 }
                 // Name the original doki (the name itself may be one of the
                 // edits) and list what the edit touches.
-                const changed = Object.keys(editChanges).map((field) => FIELD_LABELS[field] ?? field);
-                if (payload.new_images) changed.push("new images");
-                if (payload.edited_images) changed.push("image details");
-                if (payload.deleted_images) changed.push("image removals");
+                const changedFields = Object.keys(editChanges).map((field) => FIELD_LABELS[field] ?? field);
+                if (payload.new_images) changedFields.push("new images");
+                if (payload.edited_images) changedFields.push("image details");
+                if (payload.deleted_images) changedFields.push("image removals");
                 const result = await submitSuggestion({
                     token: turnstileToken,
                     kind: "edit",
                     payload,
                     imageIds: uploadedImages.map((img) => img.id),
-                    summary: `Edit '${doki.name}': ${changed.join(", ")}`,
+                    summary: changedFields.length
+                        ? `Update the ${changedFields.join(", ")} on '${doki.name}'`
+                        : `Edit the doki '${doki.name}'`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);
@@ -425,7 +427,7 @@ export default function EditDoki({ data }) {
                         target_id: doki.doki_id,
                         reason: reason.trim(),
                     },
-                    summary: `Delete the doki '${doki.name}'`,
+                    summary: `Remove the doki '${doki.name}'`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);
