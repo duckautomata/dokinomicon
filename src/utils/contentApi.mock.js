@@ -33,8 +33,9 @@ let uploadCount = 0;
 let submitCount = 0;
 let statusCount = 0;
 
-// Ids submitted this session always report as freshly pending.
-const sessionSubmittedIds = new Set();
+// Ids submitted this session always report as freshly pending; the value is
+// the summary that was submitted with them.
+const sessionSubmittedIds = new Map();
 
 export const fetchPublicConfig = async () => {
     await sleep(randomDelay(50, 150));
@@ -67,12 +68,18 @@ export const uploadImage = async ({ token, file }) => {
     return result;
 };
 
-export const submitSuggestion = async ({ token, kind, payload, imageIds = [], site = siteName }) => {
+// Server cap on the human-readable one-liner sent with a suggestion. Omitting
+// it is allowed; the server then derives one from the payload.
+export const SUMMARY_MAX_LENGTH = 300;
+
+export const submitSuggestion = async ({ token, kind, payload, imageIds = [], summary = "", site = siteName }) => {
     await sleep(randomDelay(400, 800));
     submitCount += 1;
 
+    const trimmedSummary = summary.trim().slice(0, SUMMARY_MAX_LENGTH);
     const result = { id: `sug_${randomId(13)}` };
-    sessionSubmittedIds.add(result.id);
+    // Mirrors the server's auto-generated summary when the client omits one.
+    sessionSubmittedIds.set(result.id, trimmedSummary || `${kind} suggestion (auto-generated summary)`);
 
     LOG_MSG(`[mock] submitSuggestion #${submitCount} →`, {
         request: {
@@ -81,6 +88,7 @@ export const submitSuggestion = async ({ token, kind, payload, imageIds = [], si
             kind,
             payload,
             image_ids: imageIds,
+            ...(trimmedSummary ? { summary: trimmedSummary } : {}),
         },
         response: result,
     });
@@ -103,13 +111,24 @@ const MOCK_FEEDBACK = {
     rejected: "Mock feedback: duplicate of an existing doki.",
 };
 
-// Mirrors GET /api/public/suggestions. Statuses are derived deterministically
-// from the id so reloading the page keeps them stable; ids containing
-// "missing" or "notfound" simulate deleted/unknown suggestions, and ids
-// containing "motes" simulate suggestions that belong to dokimotes.
-export const fetchSuggestionStatuses = async (ids) => {
+const MOCK_SUMMARIES = {
+    new: "Add the doki 'Mock Doki'",
+    edit: "Fix the debut date on 'Mock Doki'",
+    delete: "Remove the duplicate doki 'Mock Doki'",
+};
+
+// Mirrors GET /api/public/suggestions/{site}. Statuses are derived
+// deterministically from the id so reloading the page keeps them stable; ids
+// containing "missing" or "notfound" simulate deleted/unknown suggestions, and
+// ids containing "motes" simulate suggestions that belong to dokimotes (which
+// the server scopes out into not_found).
+export const fetchSuggestionStatuses = async (ids, site = siteName) => {
     await sleep(randomDelay(200, 500));
     statusCount += 1;
+
+    if (!MOCK_CONFIG.allowed_sites.includes(site)) {
+        throw new Error(`Unknown site '${site}'`);
+    }
 
     const unique = [...new Set(ids)];
     const results = { suggestions: [], not_found: [] };
@@ -120,27 +139,32 @@ export const fetchSuggestionStatuses = async (ids) => {
             throw new Error("Invalid suggestion id");
         }
         const lower = id.toLowerCase();
-        if (lower.includes("missing") || lower.includes("notfound")) {
+        const idSite = lower.includes("motes") ? "dokimotes" : siteName;
+        // Another site's ids are reported as not_found, never returned.
+        if (lower.includes("missing") || lower.includes("notfound") || idSite !== site) {
             results.not_found.push(id);
             continue;
         }
         const hash = hashId(id);
-        const status = sessionSubmittedIds.has(id) ? "pending" : MOCK_STATUSES[hash % MOCK_STATUSES.length];
+        const isSessionId = sessionSubmittedIds.has(id);
+        const status = isSessionId ? "pending" : MOCK_STATUSES[hash % MOCK_STATUSES.length];
+        const kind = isSessionId ? "new" : MOCK_KINDS[hash % MOCK_KINDS.length];
         const submittedAt = new Date(now - (hash % 14) * 86400000 - (hash % 7) * 3600000);
         const updatedAt =
             status === "pending" ? submittedAt : new Date(submittedAt.getTime() + ((hash % 3) + 1) * 86400000);
         results.suggestions.push({
             id,
-            site: lower.includes("motes") ? "dokimotes" : siteName,
-            kind: sessionSubmittedIds.has(id) ? "new" : MOCK_KINDS[hash % MOCK_KINDS.length],
+            site,
+            kind,
             status,
+            summary: isSessionId ? sessionSubmittedIds.get(id) : MOCK_SUMMARIES[kind],
             submitted_at: submittedAt.toISOString(),
             updated_at: updatedAt.toISOString(),
             admin_context: MOCK_FEEDBACK[status] ?? "",
         });
     }
 
-    LOG_MSG(`[mock] fetchSuggestionStatuses #${statusCount} →`, { request: { ids }, response: results });
+    LOG_MSG(`[mock] fetchSuggestionStatuses #${statusCount} →`, { request: { ids, site }, response: results });
 
     return results;
 };

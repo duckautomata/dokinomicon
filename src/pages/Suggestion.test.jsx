@@ -88,6 +88,9 @@ describe("Suggestion", () => {
 
         await waitFor(() => expect(screen.getByText(/Thanks!/i)).toBeInTheDocument());
         expect(submitSuggestion).toHaveBeenCalledTimes(1);
+        expect(submitSuggestion).toHaveBeenCalledWith(
+            expect.objectContaining({ summary: "General suggestion: An idea" }),
+        );
         expect(screen.getByText("sug_confirmed1")).toBeInTheDocument();
 
         const saved = JSON.parse(localStorage.getItem("suggestion_ids:dokinomicon"));

@@ -147,6 +147,18 @@
     background: rgba(0, 0, 0, 0.35);
 }
 
+/* Headline of a row: the admin-authored one-liner saying what the suggestion
+   was for. Plain text, so keep the author's line breaks. */
+.status-summary {
+    margin: 0.6rem 0 0 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .status-meaning {
     margin: 0.5rem 0 0 0;
     font-size: 0.9rem;

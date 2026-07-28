@@ -8,6 +8,16 @@ import { saveSuggestionId } from "../utils/suggestionIds";
 import { LOG_ERROR } from "../utils/debug";
 import "./SuggestionForms.css";
 
+// The one-line summary shown to the user (and the admins) in the suggestion
+// list. It has to fit the server's 300 character cap, and the message is free
+// text, so collapse whitespace and cut on a boundary the reader can see.
+const SUMMARY_MAX = 300;
+
+const toSummaryLine = (text) => {
+    const collapsed = text.replace(/\s+/g, " ").trim();
+    return collapsed.length <= SUMMARY_MAX ? collapsed : `${collapsed.slice(0, SUMMARY_MAX - 1).trimEnd()}…`;
+};
+
 export default function Suggestion() {
     const [cfg, setCfg] = useState(null);
     const [cfgError, setCfgError] = useState(null);
@@ -77,6 +87,7 @@ export default function Suggestion() {
                 token: turnstileToken,
                 kind: "new",
                 payload,
+                summary: toSummaryLine(`General suggestion: ${payload.subject || payload.message}`),
             });
             saveSuggestionId(result.id);
             setSuccess(result);

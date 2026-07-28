@@ -89,7 +89,9 @@ export default function SuggestionStatus() {
         setAdding(true);
         try {
             // Only track suggestions that belong to this site, so look the id
-            // up before saving it.
+            // up before saving it. The lookup is already scoped to this site
+            // server-side (another site's id comes back as not found); the
+            // site check below is a belt-and-braces guard.
             const data = await fetchSuggestionStatuses([id]);
             const suggestion = data.suggestions.find((s) => s.id === id);
             if (!suggestion) {
@@ -200,6 +202,7 @@ export default function SuggestionStatus() {
 
                                 {suggestion && (
                                     <>
+                                        {suggestion.summary && <p className="status-summary">{suggestion.summary}</p>}
                                         <p className="status-meaning">{STATUS_MEANINGS[suggestion.status] ?? ""}</p>
                                         <p className="status-dates">
                                             Submitted {formatDate(suggestion.submitted_at)}

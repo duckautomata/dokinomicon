@@ -214,6 +214,7 @@ export default function AddDoki({ data = [] }) {
                 kind: "new",
                 payload,
                 imageIds: uploadedImages.map((img) => img.id),
+                summary: `Add the doki '${payload.name}'`,
             });
             saveSuggestionId(result.id);
             setSuccess(result);

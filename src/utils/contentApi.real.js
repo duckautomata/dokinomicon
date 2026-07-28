@@ -46,7 +46,12 @@ export const uploadImage = async ({ token, file }) => {
     return res.json();
 };
 
-export const submitSuggestion = async ({ token, kind, payload, imageIds = [], site = siteName }) => {
+// Server cap on the human-readable one-liner sent with a suggestion. Omitting
+// it is allowed; the server then derives one from the payload.
+export const SUMMARY_MAX_LENGTH = 300;
+
+export const submitSuggestion = async ({ token, kind, payload, imageIds = [], summary = "", site = siteName }) => {
+    const trimmedSummary = summary.trim().slice(0, SUMMARY_MAX_LENGTH);
     const res = await fetch(`${contentApi}/public/suggestion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,6 +61,7 @@ export const submitSuggestion = async ({ token, kind, payload, imageIds = [], si
             kind,
             payload,
             image_ids: imageIds,
+            ...(trimmedSummary ? { summary: trimmedSummary } : {}),
         }),
     });
     if (!res.ok) {
@@ -67,12 +73,17 @@ export const submitSuggestion = async ({ token, kind, payload, imageIds = [], si
 // The server accepts at most 50 ids per request; chunk so power users don't 400.
 const STATUS_CHUNK_SIZE = 50;
 
-export const fetchSuggestionStatuses = async (ids) => {
+// The lookup is scoped to a single site: ids belonging to another site come
+// back in not_found rather than being returned, so the whole saved id list can
+// be passed as-is.
+export const fetchSuggestionStatuses = async (ids, site = siteName) => {
     const unique = [...new Set(ids)];
     const results = { suggestions: [], not_found: [] };
     for (let i = 0; i < unique.length; i += STATUS_CHUNK_SIZE) {
         const chunk = unique.slice(i, i + STATUS_CHUNK_SIZE);
-        const res = await fetch(`${contentApi}/public/suggestions?ids=${encodeURIComponent(chunk.join(","))}`);
+        const res = await fetch(
+            `${contentApi}/public/suggestions/${encodeURIComponent(site)}?ids=${encodeURIComponent(chunk.join(","))}`,
+        );
         if (!res.ok) {
             throw new Error(await readErrorDetail(res));
         }

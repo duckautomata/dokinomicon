@@ -29,6 +29,17 @@ const sameTags = (a, b) => {
     return a.every((tag, i) => tag === b[i]);
 };
 
+// Field names as they read in the one-line summary sent with an edit.
+const FIELD_LABELS = {
+    name: "name",
+    artists: "artists",
+    description: "description",
+    debut_date: "debut date",
+    debut_stream: "debut stream",
+    group: "group",
+    tags: "tags",
+};
+
 /**
  * @param {Object} props
  * @param {DokiData[]} props.data
@@ -381,11 +392,18 @@ export default function EditDoki({ data }) {
                 if (existingImageChanges.deletes.length > 0) {
                     payload.deleted_images = existingImageChanges.deletes;
                 }
+                // Name the original doki (the name itself may be one of the
+                // edits) and list what the edit touches.
+                const changed = Object.keys(editChanges).map((field) => FIELD_LABELS[field] ?? field);
+                if (payload.new_images) changed.push("new images");
+                if (payload.edited_images) changed.push("image details");
+                if (payload.deleted_images) changed.push("image removals");
                 const result = await submitSuggestion({
                     token: turnstileToken,
                     kind: "edit",
                     payload,
                     imageIds: uploadedImages.map((img) => img.id),
+                    summary: `Edit '${doki.name}': ${changed.join(", ")}`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);
@@ -407,6 +425,7 @@ export default function EditDoki({ data }) {
                         target_id: doki.doki_id,
                         reason: reason.trim(),
                     },
+                    summary: `Delete the doki '${doki.name}'`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);

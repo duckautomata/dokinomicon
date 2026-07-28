@@ -20,6 +20,7 @@ const makeSuggestion = (overrides = {}) => ({
     site: "dokinomicon",
     kind: "new",
     status: "pending",
+    summary: "Add the doki 'Alpha'",
     submitted_at: "2026-07-01T12:00:00.000Z",
     updated_at: "2026-07-01T12:00:00.000Z",
     admin_context: "",
@@ -53,6 +54,7 @@ describe("SuggestionStatus", () => {
                 makeSuggestion({
                     kind: "edit",
                     status: "approved",
+                    summary: "Fix the debut date on 'Alpha'",
                     updated_at: "2026-07-03T12:00:00.000Z",
                     admin_context: "Looks good!\nGoing live soon.",
                 }),
@@ -66,8 +68,9 @@ describe("SuggestionStatus", () => {
         expect(fetchSuggestionStatuses).toHaveBeenCalledTimes(1);
         expect(fetchSuggestionStatuses).toHaveBeenCalledWith(["sug_alpha", "sug_gone"]);
 
-        // Full row: pill, kind label, id, meaning, dates, feedback
+        // Full row: pill, kind label, id, summary, meaning, dates, feedback
         expect(screen.getByText("Edit")).toBeInTheDocument();
+        expect(screen.getByText("Fix the debut date on 'Alpha'")).toBeInTheDocument();
         expect(screen.getByText("sug_alpha")).toBeInTheDocument();
         expect(screen.getByText("Accepted! The change is being worked on.")).toBeInTheDocument();
         expect(screen.getByText(/Submitted/)).toBeInTheDocument();
