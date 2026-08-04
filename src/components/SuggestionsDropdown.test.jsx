@@ -17,6 +17,25 @@ describe("SuggestionsDropdown", () => {
         expect(screen.queryByText("New Doki")).not.toBeInTheDocument();
     });
 
+    it("is not hidden on small screens", () => {
+        const { container } = renderWithRouter(<SuggestionsDropdown />);
+
+        // The nav is the only entry point for submitting suggestions, so it has
+        // to stay reachable on mobile.
+        expect(container.querySelector(".suggestions-dropdown")).not.toHaveClass("desktop-only");
+    });
+
+    it("closes the dropdown when tapping outside", () => {
+        renderWithRouter(<SuggestionsDropdown />);
+
+        fireEvent.click(screen.getByRole("button", { name: /Suggestions/i }));
+        expect(screen.getByText("New Doki")).toBeInTheDocument();
+
+        fireEvent.touchStart(document.body);
+
+        expect(screen.queryByText("New Doki")).not.toBeInTheDocument();
+    });
+
     it("opens the dropdown when clicked", () => {
         renderWithRouter(<SuggestionsDropdown />);
         const button = screen.getByRole("button", { name: /Suggestions/i });

@@ -20,21 +20,25 @@ export default function SuggestionsDropdown() {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
         };
     }, []);
 
     const close = () => setIsOpen(false);
 
     return (
-        <div className="suggestions-dropdown desktop-only" ref={dropdownRef}>
+        <div className="suggestions-dropdown" ref={dropdownRef}>
             <button
                 className={`nav-link suggestions-btn ${isOpen ? "active" : ""}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
+                aria-label="Suggestions"
             >
-                Suggestions
+                <span className="suggestions-label-full">Suggestions</span>
+                <span className="suggestions-label-short">New</span>
                 <span className="dropdown-arrow">{isOpen ? "▲" : "▼"}</span>
             </button>
             {isOpen && (
