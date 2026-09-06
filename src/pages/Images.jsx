@@ -96,17 +96,23 @@ export default function Images({ data }) {
                         )}
                     </div>
                     <div className="images-filter-container">
-                        <select
-                            className="images-filter-select"
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                        >
-                            {imageTypes.map((type) => (
-                                <option key={type} value={type}>
-                                    {type}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="filter-group">
+                            <label htmlFor="type-filter" className="filter-label">
+                                Type
+                            </label>
+                            <select
+                                id="type-filter"
+                                className="filter-select"
+                                value={filterType}
+                                onChange={(e) => setFilterType(e.target.value)}
+                            >
+                                {imageTypes.map((type) => (
+                                    <option key={type} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </header>

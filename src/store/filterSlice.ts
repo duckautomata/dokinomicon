@@ -5,6 +5,8 @@ export const createFilterSlice: AppSliceCreator<FilterSlice> = (set) => ({
     homeSetSearchText: (text) => set({ homeSearchText: text }),
     homeFilterGroup: "All",
     homeSetFilterGroup: (group) => set({ homeFilterGroup: group }),
+    homeSortBy: "default",
+    homeSetSortBy: (sortBy) => set({ homeSortBy: sortBy }),
     imageSearchText: "",
     setImageSearchText: (text) => set({ imageSearchText: text }),
     imageFilterType: "All",

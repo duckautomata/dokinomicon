@@ -55,6 +55,35 @@
     gap: 1.5rem;
 }
 
+.nav-link {
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: var(--panel-bg);
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+main.content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Keep this last: a media query adds no specificity, so these only win by coming after the base rules */
 @media (max-width: 600px) {
     .top-nav {
         padding: 0.75rem 1rem;
@@ -99,32 +128,4 @@
     main.content {
         padding: 1rem;
     }
-}
-
-.nav-link {
-    font-size: 0.95rem;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-    background: var(--panel-bg);
-    color: var(--text-primary);
-}
-
-.nav-link.active {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--accent);
-    font-weight: 600;
-}
-
-main.content {
-    flex: 1;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
 }

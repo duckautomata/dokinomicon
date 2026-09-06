@@ -38,6 +38,8 @@ export interface FilterSlice {
     homeSetSearchText: (text: string) => void;
     homeFilterGroup: string;
     homeSetFilterGroup: (group: string) => void;
+    homeSortBy: string;
+    homeSetSortBy: (sortBy: string) => void;
     imageSearchText: string;
     setImageSearchText: (text: string) => void;
     imageFilterType: string;
