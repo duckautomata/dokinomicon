@@ -1,6 +1,8 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import Headshot from "../components/Headshot";
 import { useAppStore } from "../store/store";
+import { site } from "../site";
 import "./Home.css";
 
 /**
@@ -91,6 +93,24 @@ export default function Home({ data }) {
         // `filteredData` is memoized, so sorting either in place would corrupt them.
         return [...filteredData].sort(option.comparator);
     }, [filteredData, sortBy]);
+
+    // The csv files loaded but have no rows yet (e.g. a brand-new site). Filters have nothing to work on.
+    if (data.length === 0) {
+        return (
+            <div className="home-container">
+                <div className="home-empty glass-panel">
+                    <h2 className="home-empty-title">No {site.nounPlural} yet</h2>
+                    <p className="home-empty-text">
+                        {site.title} doesn&apos;t have any {site.nounPlural} yet. Know one of {site.name}&apos;s
+                        characters that belongs here?
+                    </p>
+                    <Link to="/add" className="home-empty-action">
+                        Suggest the first {site.noun}
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="home-container">

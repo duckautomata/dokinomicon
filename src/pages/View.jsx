@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ImageModal from "../components/ImageModal";
-import { renderTextWithLinks } from "../utils/textUtils";
+import { renderTextWithLinks, formatUrlForDisplay, toHref } from "../utils/textUtils";
+import { site } from "../site";
 import notFoundImage from "../assets/404.png";
 import "./View.css";
 
@@ -9,6 +10,28 @@ import "./View.css";
  * @typedef {import("../store/types").DokiData} DokiData
  * @typedef {import("../store/types").ImageData} ImageData
  */
+
+// Sites that host the actual debut stream (or its VOD). A debut_stream pointing
+// anywhere else - an x.com post announcing the debut, say - is credited as a
+// source instead, since it isn't a stream to watch.
+const STREAM_HOSTS = ["youtube.com", "youtu.be", "youtube-nocookie.com", "twitch.tv"];
+
+/**
+ * Label for the debut_stream link: "Debut Stream" for a stream host,
+ * "Source" for anything else (including anything that isn't a parseable URL).
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+const debutStreamLabel = (url) => {
+    try {
+        const { hostname } = new URL(toHref(url));
+        const isStream = STREAM_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+        return isStream ? "Debut Stream" : "Source";
+    } catch {
+        return "Source";
+    }
+};
 
 /**
  * @param {Object} props
@@ -60,7 +83,7 @@ export default function View({ data }) {
         return (
             <div className="view-not-found">
                 <img src={notFoundImage} alt="Not found" className="not-found-image" />
-                <h2>Doki not found</h2>
+                <h2>{site.noun} not found</h2>
                 <Link to="/" className="back-link">
                     Return Home
                 </Link>
@@ -145,14 +168,15 @@ export default function View({ data }) {
                         )}
                         {doki.debut_stream && (
                             <div className="meta-item">
-                                <span className="meta-label">Debut Stream</span>
+                                <span className="meta-label">{debutStreamLabel(doki.debut_stream)}</span>
                                 <a
-                                    href={doki.debut_stream}
+                                    href={toHref(doki.debut_stream)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="meta-value link"
+                                    className="meta-value meta-link"
+                                    title={doki.debut_stream}
                                 >
-                                    Watch VOD
+                                    {formatUrlForDisplay(doki.debut_stream)}
                                 </a>
                             </div>
                         )}

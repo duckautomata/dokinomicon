@@ -6,6 +6,11 @@
     --text-secondary: #9ba0b5;
     --accent: #8b5cf6;
     --accent-hover: #a78bfa;
+    --on-accent: #fff; /* text on accent-filled buttons and badges */
+    /* Not redefined for light mode: tints and highlights look the same in both themes. */
+    --accent-rgb: 139, 92, 246; /* for rgba() tints */
+    --accent-light: #c084fc;
+    --accent-lighter: #c4b5fd;
     --panel-bg: rgba(255, 255, 255, 0.03);
     --panel-border: rgba(255, 255, 255, 0.08);
     --nav-bg: rgba(13, 15, 26, 0.8);
@@ -49,6 +54,28 @@
     --hero-title-gradient: #c084fc;
     --checkerboard: rgba(0, 0, 0, 0.04);
     color-scheme: light;
+}
+
+/* Mint Fantome's site (data-site is set in index.jsx). These selectors are more
+   specific than both blocks above, so they win in either theme. */
+:root[data-site="mint"] {
+    --accent: #10b981;
+    --accent-hover: #34d399;
+    /* White on these greens is hard to read, so filled buttons get dark text in both themes. */
+    --on-accent: #0d0f1a;
+    --accent-rgb: 16, 185, 129;
+    --accent-light: #34d399;
+    --accent-lighter: #6ee7b7;
+    --hero-title-gradient: #34d399;
+}
+
+:root[data-site="mint"][data-theme="light"] {
+    --accent: #059669;
+    --accent-hover: #047857;
+    /* Mint's pale highlight greens are unreadable on the light background, so text gets a darker green. */
+    --accent-light: #047857;
+    --accent-lighter: #047857;
+    --hero-title-gradient: #34d399;
 }
 
 body {
@@ -179,7 +206,7 @@ button {
 .filter-select {
     padding: 0.6rem 1.75rem 0.6rem 0.75rem;
     border-radius: 99px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     background: rgba(0, 0, 0, 0.2);
     color: var(--text-primary);
     font-family: inherit;
@@ -195,10 +222,16 @@ button {
     box-sizing: border-box;
 }
 
-/* background-color, not the background shorthand — the shorthand would wipe the chevron */
+/* CSS variables can't reach into a data URI, so Mint gets its own chevron color.
+   :where() keeps the specificity of the rule above, so later overrides still apply. */
+:where([data-site="mint"]) .filter-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* background-color, not the background shorthand - the shorthand would wipe the chevron */
 .filter-select:focus {
-    border-color: rgba(139, 92, 246, 0.8);
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+    border-color: rgba(var(--accent-rgb), 0.8);
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
     background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -258,8 +291,8 @@ button {
 .hero-image-wrapper:hover .video-indicator,
 .gallery-item:hover .video-indicator,
 .alt-image-container:hover .video-indicator {
-    background: rgba(139, 92, 246, 0.8);
+    background: rgba(var(--accent-rgb), 0.8);
     /* Accent color on hover */
     transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
 }

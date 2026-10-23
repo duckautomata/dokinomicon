@@ -62,5 +62,5 @@ export const router = createBrowserRouter(
             ],
         },
     ],
-    { basename: "/dokinomicon/" },
+    { basename: import.meta.env.BASE_URL },
 );

@@ -38,7 +38,7 @@
 .nav-brand {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #c084fc;
+    color: var(--accent-light);
     letter-spacing: -0.03em;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .nav-link.active {
-    background: rgba(139, 92, 246, 0.15);
+    background: rgba(var(--accent-rgb), 0.15);
     color: var(--accent);
     font-weight: 600;
 }
@@ -83,21 +83,34 @@ main.content {
     box-sizing: border-box;
 }
 
-/* Keep this last: a media query adds no specificity, so these only win by coming after the base rules */
+/* Keep the media queries last, narrowest last: a media query adds no specificity, so these only win by coming after the rules they override */
+
+/* Tighter spacing keeps the site menu, the title, Home, Images and Suggestions on one row on small tablets. */
+@media (max-width: 760px) {
+    .top-nav {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .nav-links,
+    .nav-main-links {
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
 @media (max-width: 600px) {
     .top-nav {
         padding: 0.75rem 1rem;
-        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
     }
 
-    .brand-group {
-        display: none;
-    }
-
-    .brand-group {
-        display: none;
-    }
-
+    /* Only the site menu's grid button stays: the title and its badges are hidden,
+       and the badges show in the nav row instead. */
     .nav-brand {
         display: none;
     }
@@ -113,7 +126,8 @@ main.content {
     .nav-links {
         gap: 0;
         justify-content: space-between;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
     }
 
     .nav-main-links {
@@ -127,5 +141,16 @@ main.content {
 
     main.content {
         padding: 1rem;
+    }
+}
+
+/* Tighter gaps and padding keep the site menu button, Home, Images and New on one row on 320px phones. */
+@media (max-width: 370px) {
+    .nav-main-links {
+        gap: 0.25rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem;
     }
 }

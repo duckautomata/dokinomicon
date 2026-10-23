@@ -85,8 +85,31 @@ describe("ImageModal", () => {
         const link = screen.getByRole("link", { name: /Source/i });
         expect(link).toHaveAttribute("href", "https://twitter.com/artist/status/123");
         expect(link).toHaveAttribute("target", "_blank");
+        // The URL itself is the link text, so it reads as a link
+        expect(link).toHaveTextContent("twitter.com/artist/status/123");
         // No "Source: ..." plain text version when it's a link
         expect(screen.queryByText(/^Source:/)).not.toBeInTheDocument();
+    });
+
+    it("keeps the full source url in the title, where the cropped text can't show it", () => {
+        const source = "https://twitter.com/a_very_long_artist_handle/status/1234567890123456789";
+        const images = [
+            {
+                image_name: "With long URL source",
+                urlWebp: "x.webp",
+                image_ext: ".webp",
+                source,
+            },
+        ];
+        render(<ImageModal images={images} selectedIndex={0} onClose={mockOnClose} onNavigate={mockOnNavigate} />);
+
+        const link = screen.getByRole("link", { name: /Source/i });
+        expect(link).toHaveAttribute("href", source);
+        expect(link).toHaveAttribute("title", source);
+        // Visible text is the url without its scheme; CSS crops it to fit
+        expect(link.querySelector(".source-link-url")).toHaveTextContent(
+            "twitter.com/a_very_long_artist_handle/status/1234567890123456789",
+        );
     });
 
     it("renders the source as plain text when it is not a URL", () => {

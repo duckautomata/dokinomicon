@@ -6,6 +6,7 @@ import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
 import ConfirmSubmitModal from "../components/ConfirmSubmitModal";
 import { fetchPublicConfig, uploadImage, submitSuggestion, validateImageFile } from "../utils/contentApi";
 import { saveSuggestionId } from "../utils/suggestionIds";
+import { site } from "../site";
 import { LOG_ERROR } from "../utils/debug";
 import notFoundImage from "../assets/404.png";
 import "./SuggestionForms.css";
@@ -250,9 +251,9 @@ export default function EditDoki({ data }) {
                 </Link>
                 <div className="suggestion-card glass-panel">
                     <img src={notFoundImage} alt="Not found" className="not-found-image" />
-                    <h1 className="suggestion-title">Doki not found</h1>
+                    <h1 className="suggestion-title">{site.noun} not found</h1>
                     <p className="suggestion-subtitle">
-                        No doki was found with id <code>{doki_id}</code>.
+                        No {site.noun.toLowerCase()} was found with id <code>{doki_id}</code>.
                     </p>
                 </div>
             </div>
@@ -405,7 +406,7 @@ export default function EditDoki({ data }) {
                     imageIds: uploadedImages.map((img) => img.id),
                     summary: changedFields.length
                         ? `Update the ${changedFields.join(", ")} on '${doki.name}'`
-                        : `Edit the doki '${doki.name}'`,
+                        : `Edit the ${site.noun.toLowerCase()} '${doki.name}'`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);
@@ -427,7 +428,7 @@ export default function EditDoki({ data }) {
                         target_id: doki.doki_id,
                         reason: reason.trim(),
                     },
-                    summary: `Remove the doki '${doki.name}'`,
+                    summary: `Remove the ${site.noun.toLowerCase()} '${doki.name}'`,
                 });
                 saveSuggestionId(result.id);
                 setSuccess(result);
@@ -451,7 +452,7 @@ export default function EditDoki({ data }) {
         return (
             <div className="suggestion-page">
                 <Link to={`/view/${doki.doki_id}`} className="suggestion-back">
-                    <span className="back-arrow">←</span> Back to Doki
+                    <span className="back-arrow">←</span> Back to {site.noun}
                 </Link>
                 <div className="suggestion-card glass-panel">
                     <div className="suggestion-status error">Failed to load suggestion config: {cfgError}</div>
@@ -472,7 +473,7 @@ export default function EditDoki({ data }) {
         return (
             <div className="suggestion-page">
                 <Link to={`/view/${doki.doki_id}`} className="suggestion-back">
-                    <span className="back-arrow">←</span> Back to Doki
+                    <span className="back-arrow">←</span> Back to {site.noun}
                 </Link>
                 <div className="suggestion-card glass-panel">
                     <h1 className="suggestion-title">Thanks!</h1>
@@ -490,7 +491,7 @@ export default function EditDoki({ data }) {
                             className="suggestion-secondary-btn"
                             style={{ textDecoration: "none" }}
                         >
-                            Back to Doki
+                            Back to {site.noun}
                         </Link>
                     </div>
                 </div>
@@ -499,6 +500,9 @@ export default function EditDoki({ data }) {
     }
 
     const maxMb = (cfg.max_image_bytes / (1024 * 1024)).toFixed(0);
+    // An older server reports a single cap; a newer one gives video its own, larger one.
+    const maxVideoMb = ((cfg.max_video_bytes ?? cfg.max_image_bytes) / (1024 * 1024)).toFixed(0);
+    const sizeHint = maxVideoMb === maxMb ? `up to ${maxMb} MB` : `images up to ${maxMb} MB · videos up to ${maxVideoMb} MB`;
     const acceptList = (cfg.supported_formats ?? []).map((f) => `.${f}`).join(",");
     const currentHeadshot = doki.images?.Headshot?.[0];
 
@@ -533,7 +537,7 @@ export default function EditDoki({ data }) {
                 onCancel={() => setConfirmOpen(false)}
             />
             <Link to={`/view/${doki.doki_id}`} className="suggestion-back">
-                <span className="back-arrow">←</span> Back to Doki
+                <span className="back-arrow">←</span> Back to {site.noun}
             </Link>
             <div className="suggestion-card glass-panel">
                 <h1 className="suggestion-title">Suggest a Change</h1>
@@ -645,7 +649,7 @@ export default function EditDoki({ data }) {
                                     value={group}
                                     onChange={(e) => setGroup(e.target.value)}
                                 >
-                                    <option value="">— None —</option>
+                                    <option value="">-None-</option>
                                     {groupOptions.map((g) => (
                                         <option key={g} value={g}>
                                             {g}
@@ -777,7 +781,7 @@ export default function EditDoki({ data }) {
                                 <span className="suggestion-field-label">
                                     New Images{" "}
                                     <span className="suggestion-field-hint">
-                                        (optional · up to {maxMb} MB · {(cfg.supported_formats ?? []).join(", ")})
+                                        (optional · {sizeHint} · {(cfg.supported_formats ?? []).join(", ")})
                                     </span>
                                 </span>
 
@@ -839,20 +843,20 @@ export default function EditDoki({ data }) {
                                         <summary>What does each type mean?</summary>
                                         <ul>
                                             <li>
-                                                <strong>Headshot</strong> — the main image shown on the homepage
+                                                <strong>Headshot</strong>: the main image shown on the homepage
                                             </li>
                                             <li>
-                                                <strong>Reference</strong> — reference images that artists or fans can
+                                                <strong>Reference</strong>: reference images that artists or fans can
                                                 use
                                             </li>
                                             <li>
-                                                <strong>Screenshot</strong> — captures from a stream or video
+                                                <strong>Screenshot</strong>: captures from a stream or video
                                             </li>
                                             <li>
-                                                <strong>Asset</strong> — images that can be used for edits or creations
+                                                <strong>Asset</strong>: images that can be used for edits or creations
                                             </li>
                                             <li>
-                                                <strong>Other</strong> — anything else
+                                                <strong>Other</strong>: anything else
                                             </li>
                                         </ul>
                                     </details>
@@ -905,7 +909,7 @@ export default function EditDoki({ data }) {
                                     className="suggestion-textarea"
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
-                                    placeholder="e.g. duplicate of another doki, violates guidelines, …"
+                                    placeholder={`e.g. duplicate of another ${site.noun.toLowerCase()}, violates guidelines, …`}
                                     required
                                     maxLength={2000}
                                 />

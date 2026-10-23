@@ -222,4 +222,25 @@ describe("Home", () => {
 
         expect(renderedNames()).toEqual(["Multi Doki", "Multi Doki"]);
     });
+
+    it("shows a friendly empty state when the site has no dokis yet", () => {
+        const { container } = renderHome([]);
+
+        expect(screen.getByRole("heading", { name: "No Dokis yet" })).toBeInTheDocument();
+        expect(screen.getByText(/The Dokinomicon doesn't have any Dokis yet/)).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Suggest the first Doki" })).toHaveAttribute("href", "/add");
+        // Nothing to search or filter yet
+        expect(screen.queryByPlaceholderText("Search by name or tags...")).not.toBeInTheDocument();
+        expect(container.querySelector(".doki-grid")).not.toBeInTheDocument();
+    });
+
+    it("keeps the filters, not the empty state, when the filters match nothing", () => {
+        mockStore.homeSearchText = "no such doki";
+
+        renderHome(mockData);
+
+        expect(screen.queryByText("No Dokis yet")).not.toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Search by name or tags...")).toHaveValue("no such doki");
+        expect(screen.queryByText("Alpha Doki")).not.toBeInTheDocument();
+    });
 });

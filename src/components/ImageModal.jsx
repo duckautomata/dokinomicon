@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import "./ImageModal.css";
 import { LOG_ERROR } from "../utils/debug";
-import { isUrl } from "../utils/textUtils";
+import { isUrl, formatUrlForDisplay, toHref } from "../utils/textUtils";
 
 /**
  * @typedef {import("../store/types").ImageData} ImageData
@@ -243,18 +243,15 @@ export default function ImageModal({ images, selectedIndex, onClose, onNavigate 
                             {image.source &&
                                 (isUrl(image.source) ? (
                                     <a
-                                        href={
-                                            image.source.trim().startsWith("www.")
-                                                ? `https://${image.source.trim()}`
-                                                : image.source
-                                        }
+                                        href={toHref(image.source)}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="modal-tag source-tag"
-                                        style={{ textDecoration: "none" }}
+                                        className="modal-tag source-tag source-link"
+                                        title={image.source}
+                                        aria-label={`Source: ${image.source}`}
                                     >
-                                        <span style={{ marginRight: "4px" }}>🔗</span>
-                                        Source
+                                        <span className="source-link-icon">🔗</span>
+                                        <span className="source-link-url">{formatUrlForDisplay(image.source)}</span>
                                     </a>
                                 ) : (
                                     <span className="modal-tag source-tag" title={image.source}>

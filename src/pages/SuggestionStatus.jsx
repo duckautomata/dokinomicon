@@ -94,7 +94,7 @@ export default function SuggestionStatus() {
             const suggestion = data.suggestions.find((s) => s.id === id);
             if (!suggestion) {
                 setManualError(
-                    `No ${siteName} suggestion was found with that id — it may belong to another site, have been removed, or the id is wrong.`,
+                    `No ${siteName} suggestion was found with that id. It may belong to another site, have been removed, or the id is wrong.`,
                 );
                 return;
             }
@@ -239,7 +239,7 @@ export default function SuggestionStatus() {
                     <label className="suggestion-field-label" htmlFor="status-add-id">
                         Track another suggestion{" "}
                         <span className="suggestion-field-hint">
-                            (paste a reference id from another device — {siteName} suggestions only)
+                            (paste a reference id from another device. {siteName} suggestions only)
                         </span>
                     </label>
                     <div className="status-add-row">
