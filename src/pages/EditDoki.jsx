@@ -502,7 +502,8 @@ export default function EditDoki({ data }) {
     const maxMb = (cfg.max_image_bytes / (1024 * 1024)).toFixed(0);
     // An older server reports a single cap; a newer one gives video its own, larger one.
     const maxVideoMb = ((cfg.max_video_bytes ?? cfg.max_image_bytes) / (1024 * 1024)).toFixed(0);
-    const sizeHint = maxVideoMb === maxMb ? `up to ${maxMb} MB` : `images up to ${maxMb} MB · videos up to ${maxVideoMb} MB`;
+    const sizeHint =
+        maxVideoMb === maxMb ? `up to ${maxMb} MB` : `images up to ${maxMb} MB · videos up to ${maxVideoMb} MB`;
     const acceptList = (cfg.supported_formats ?? []).map((f) => `.${f}`).join(",");
     const currentHeadshot = doki.images?.Headshot?.[0];
 
