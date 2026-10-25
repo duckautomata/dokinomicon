@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import ImageModal from "../components/ImageModal";
 import { useAppStore } from "../store/store";
+import { site } from "../site";
 import "./Images.css";
 /**
  * @typedef {import("../store/types").DokiData} DokiData
@@ -145,7 +146,12 @@ export default function Images({ data }) {
 
             {filteredImages.length === 0 && (
                 <div className="images-empty-state">
-                    <p>No images found matching your search.</p>
+                    {/* No images at all (e.g. a brand-new site) is not a search that matched nothing. */}
+                    <p>
+                        {allImages.length === 0
+                            ? `${site.title} doesn't have any images yet.`
+                            : "No images found matching your search."}
+                    </p>
                 </div>
             )}
 

@@ -76,4 +76,11 @@ describe("Images", () => {
         expect(screen.getByText("No images found matching your search.")).toBeInTheDocument();
         expect(screen.queryByText("Headshot 1")).not.toBeInTheDocument();
     });
+
+    it("says the site has no images yet when there are none at all", () => {
+        render(<Images data={[]} />);
+
+        expect(screen.getByText("The Dokinomicon doesn't have any images yet.")).toBeInTheDocument();
+        expect(screen.queryByText("No images found matching your search.")).not.toBeInTheDocument();
+    });
 });

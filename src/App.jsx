@@ -1,69 +1,86 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Outlet, Link, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { loadDokiData } from "./utils/dataLoader";
 import { useAppStore } from "./store/store";
+import { useSystemTheme } from "./utils/useSystemTheme";
+import { sites } from "../sites.config.js";
+import { site } from "./site";
+import { hubUrl } from "./config";
 import UpdateAlert from "./components/UpdateAlert";
+import DataLoadError from "./components/DataLoadError";
 import EnvironmentBadge from "./components/EnvironmentBadge";
 import MockApiBadge from "./components/MockApiBadge";
 import ScrollToTop from "./components/ScrollToTop";
 import SuggestionsDropdown from "./components/SuggestionsDropdown";
+import SiteMenu from "./components/SiteMenu";
 import "./App.css";
+
+// Every site in config order, so the rows stay put when switching sites. Paths are
+// built at runtime: a literal "/<slug>/" would fail the build's check for another site's base.
+const menuSites = Object.values(sites).map((s) => ({
+    id: s.id,
+    title: s.shortTitle,
+    subtitle: s.name,
+    href: `/${s.slug}/`,
+    iconSrc: `/${s.slug}/favicon-32x32.png`,
+    iconSrcSet: `/${s.slug}/favicon-32x32.png 1x, /${s.slug}/android-chrome-192x192.png 2x`,
+    current: s.id === site.id,
+}));
 
 export default function App() {
     const location = useLocation();
+    const takePendingScrollY = useAppStore((state) => state.takePendingScrollY);
 
     useLayoutEffect(() => {
         document.documentElement.style.scrollBehavior = "auto";
 
+        // A route opens at the top unless the navigation asked to land somewhere - "Back to
+        // Gallery" hands back the offset the grid was left at. The restore belongs here rather
+        // than in the page itself: child effects run first, so this one would scroll the page
+        // straight back to the top afterwards.
         window.scrollTo({
-            top: 0,
+            top: takePendingScrollY(),
             left: 0,
             behavior: "instant",
         });
 
-        setTimeout(() => {
+        // Cleared on the way out: a navigation that unmounts the app, as every test does, would
+        // otherwise leave this reaching for a document that is no longer there.
+        const restoreScrollBehavior = setTimeout(() => {
             document.documentElement.style.scrollBehavior = "";
         }, 20);
-    }, [location.pathname]);
+        return () => clearTimeout(restoreScrollBehavior);
+    }, [location.pathname, takePendingScrollY]);
 
-    const [data, setData] = useState([]);
-    const theme = useAppStore((state) => state.theme);
+    useSystemTheme();
+
+    // null until the csv files have loaded. An empty array is a loaded site with no dokis yet.
+    const [data, setData] = useState(null);
+    const [loadError, setLoadError] = useState(null);
+    const [loadAttempt, setLoadAttempt] = useState(0);
 
     useEffect(() => {
-        loadDokiData().then(setData);
-    }, []);
-
-    // Apply theme to document
-    useEffect(() => {
-        const applyTheme = (currentTheme) => {
-            if (currentTheme === "system") {
-                const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                document.documentElement.setAttribute("data-theme", systemPrefersDark ? "dark" : "light");
-            } else {
-                document.documentElement.setAttribute("data-theme", currentTheme);
-            }
+        let cancelled = false;
+        loadDokiData()
+            .then((rows) => {
+                if (!cancelled) setData(rows);
+            })
+            .catch((error) => {
+                if (!cancelled) setLoadError(error);
+            });
+        return () => {
+            cancelled = true;
         };
+    }, [loadAttempt]);
 
-        applyTheme(theme);
+    const retryLoad = () => {
+        setLoadError(null);
+        setLoadAttempt((attempt) => attempt + 1);
+    };
 
-        // Listen for system theme changes if set to system
-        if (theme === "system") {
-            const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-            const handleChange = () => applyTheme("system");
+    if (loadError) return <DataLoadError error={loadError} onRetry={retryLoad} />;
 
-            // Modern API
-            if (mediaQuery.addEventListener) {
-                mediaQuery.addEventListener("change", handleChange);
-                return () => mediaQuery.removeEventListener("change", handleChange);
-            } else if (mediaQuery.addListener) {
-                // Older API fallback
-                mediaQuery.addListener(handleChange);
-                return () => mediaQuery.removeListener(handleChange);
-            }
-        }
-    }, [theme]);
-
-    if (!data.length)
+    if (!data)
         return (
             <div
                 style={{
@@ -75,7 +92,7 @@ export default function App() {
                     color: "var(--text-secondary)",
                 }}
             >
-                Loading Dokinomicon...
+                {`Loading ${site.shortTitle}...`}
             </div>
         );
 
@@ -84,11 +101,9 @@ export default function App() {
             <UpdateAlert />
             <header className="top-nav">
                 <div className="brand-group">
-                    <Link to="/" className="nav-brand">
-                        Dokinomicon
-                    </Link>
-                    <EnvironmentBadge />
-                    <MockApiBadge />
+                    <SiteMenu title={site.shortTitle} sites={menuSites} hubUrl={hubUrl} />
+                    <EnvironmentBadge className="desktop-only" />
+                    <MockApiBadge className="desktop-only" />
                 </div>
                 <nav className="nav-links">
                     <div className="nav-main-links">

@@ -78,7 +78,7 @@
 }
 
 .suggestion-field-required {
-    color: #f87171;
+    color: var(--danger-text);
     font-weight: 600;
 }
 
@@ -94,8 +94,9 @@
     width: 100%;
     padding: 0.7rem 0.9rem;
     border-radius: 8px;
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    box-shadow: var(--input-shadow);
     color: var(--text-primary);
     font-size: 0.95rem;
     outline: none;
@@ -119,30 +120,35 @@
     background-size: 1em;
 }
 
+/* CSS variables can't reach into a data URI, so each site and theme needs its own
+   chevron. :where() keeps the specificity of the rule above, so these three win on
+   source order alone - keep the light-mode pair last. */
+:where([data-site="mint"]) .suggestion-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* The dark themes' pale chevrons all but vanish on a white control. */
+:where([data-theme="light"]) .suggestion-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+:where([data-site="mint"][data-theme="light"]) .suggestion-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
 .suggestion-select option {
     background: var(--bg-color);
     color: var(--text-primary);
 }
 
+/* background-color, not the background shorthand - the shorthand would wipe the
+   select's chevron, and this rule outranks the one that draws it. */
 .suggestion-input:focus,
 .suggestion-textarea:focus,
 .suggestion-select:focus {
-    border-color: rgba(139, 92, 246, 0.8);
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.18);
-    background: rgba(0, 0, 0, 0.35);
-}
-
-[data-theme="light"] .suggestion-input,
-[data-theme="light"] .suggestion-textarea,
-[data-theme="light"] .suggestion-select {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(124, 58, 237, 0.25);
-}
-
-[data-theme="light"] .suggestion-input:focus,
-[data-theme="light"] .suggestion-textarea:focus,
-[data-theme="light"] .suggestion-select:focus {
-    background: rgba(255, 255, 255, 1);
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+    background-color: var(--input-bg-focus);
 }
 
 .suggestion-radio-group {
@@ -157,8 +163,8 @@
     gap: 0.5rem;
     padding: 0.55rem 1rem;
     border-radius: 99px;
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--input-border);
+    background: var(--surface-inset);
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 0.9rem;
@@ -170,13 +176,13 @@
 }
 
 .suggestion-radio-option:hover {
-    border-color: rgba(139, 92, 246, 0.5);
-    background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background: rgba(var(--accent-rgb), 0.08);
 }
 
 .suggestion-radio-option.checked {
-    border-color: rgba(139, 92, 246, 0.7);
-    background: rgba(139, 92, 246, 0.18);
+    border-color: rgba(var(--accent-rgb), 0.7);
+    background: rgba(var(--accent-rgb), 0.18);
     color: var(--accent-hover);
     font-weight: 600;
 }
@@ -184,15 +190,11 @@
 .suggestion-mode-tabs {
     display: flex;
     gap: 0.5rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--surface-inset);
     padding: 0.25rem;
     border-radius: 10px;
     margin-bottom: 1.5rem;
     width: fit-content;
-}
-
-[data-theme="light"] .suggestion-mode-tabs {
-    background: rgba(0, 0, 0, 0.06);
 }
 
 .suggestion-mode-tab {
@@ -209,7 +211,7 @@
 
 .suggestion-mode-tab.active {
     background: var(--accent);
-    color: white;
+    color: var(--on-accent);
 }
 
 .suggestion-mode-tab:not(.active):hover {
@@ -244,11 +246,7 @@
     padding: 0.5rem;
     border-radius: 10px;
     border: 1px solid var(--panel-border);
-    background: rgba(0, 0, 0, 0.18);
-}
-
-[data-theme="light"] .suggestion-image-row {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--surface-inset);
 }
 
 .suggestion-image-row-thumb {
@@ -257,7 +255,7 @@
     flex-shrink: 0;
     border-radius: 8px;
     overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--media-bg);
     background-image:
         linear-gradient(
             45deg,
@@ -299,8 +297,8 @@
 .suggestion-image-row-source {
     padding: 0.4rem 0.55rem;
     border-radius: 6px;
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
     color: var(--text-primary);
     font-size: 0.85rem;
     font-family: inherit;
@@ -308,24 +306,15 @@
     outline: none;
     transition:
         border-color 0.15s ease,
-        background 0.15s ease;
+        background-color 0.15s ease;
 }
 
-[data-theme="light"] .suggestion-image-row-type,
-[data-theme="light"] .suggestion-image-row-source {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(124, 58, 237, 0.25);
-}
-
+/* background-color, not the background shorthand - the shorthand would wipe the
+   type select's chevron, and this rule outranks the one that draws it. */
 .suggestion-image-row-type:focus,
 .suggestion-image-row-source:focus {
-    border-color: rgba(139, 92, 246, 0.7);
-    background: rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="light"] .suggestion-image-row-type:focus,
-[data-theme="light"] .suggestion-image-row-source:focus {
-    background: rgba(255, 255, 255, 1);
+    border-color: var(--input-border-focus);
+    background-color: var(--input-bg-focus);
 }
 
 .suggestion-image-row-type {
@@ -340,6 +329,22 @@
     background-repeat: no-repeat;
     background-position: right 0.55rem center;
     background-size: 0.85em;
+}
+
+/* CSS variables can't reach into a data URI, so each site and theme needs its own
+   chevron. :where() keeps the specificity of the rule above, so these three win on
+   source order alone - keep the light-mode pair last. */
+:where([data-site="mint"]) .suggestion-image-row-type {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* The dark themes' pale chevrons all but vanish on a white control. */
+:where([data-theme="light"]) .suggestion-image-row-type {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+:where([data-site="mint"][data-theme="light"]) .suggestion-image-row-type {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 .suggestion-image-row-type option {
@@ -403,7 +408,7 @@
 
 .suggestion-image-row-deleted-label {
     flex: 1;
-    color: #f87171;
+    color: var(--danger-text);
     font-weight: 600;
     font-size: 0.85rem;
     font-style: italic;
@@ -413,7 +418,7 @@
 .suggestion-image-row.marked-deleted .suggestion-image-row-remove {
     background: rgba(34, 197, 94, 0.25);
     border-color: rgba(34, 197, 94, 0.5);
-    color: #4ade80;
+    color: var(--success-text);
     font-size: 1.1rem;
 }
 
@@ -485,7 +490,7 @@
     aspect-ratio: 1;
     border-radius: 12px;
     overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--media-bg);
     background-image:
         linear-gradient(
             45deg,
@@ -526,7 +531,7 @@
 }
 
 .suggestion-dropzone {
-    border: 2px dashed rgba(139, 92, 246, 0.35);
+    border: 2px dashed rgba(var(--accent-rgb), 0.35);
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -536,19 +541,19 @@
 }
 
 .suggestion-dropzone:hover:not(.disabled) {
-    border-color: rgba(139, 92, 246, 0.65);
+    border-color: rgba(var(--accent-rgb), 0.65);
 }
 
 .suggestion-dropzone:focus-visible {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
 }
 
 .suggestion-dropzone.dragging {
     border-color: var(--accent);
     border-style: solid;
-    background-color: rgba(139, 92, 246, 0.12);
-    box-shadow: 0 0 24px rgba(139, 92, 246, 0.25);
+    background-color: rgba(var(--accent-rgb), 0.12);
+    box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.25);
 }
 
 .suggestion-dropzone.disabled {
@@ -558,7 +563,7 @@
 
 .suggestion-dropzone.has-preview {
     border-style: solid;
-    border-color: rgba(139, 92, 246, 0.5);
+    border-color: rgba(var(--accent-rgb), 0.5);
 }
 
 .suggestion-dropzone-image {
@@ -636,7 +641,7 @@
 .suggestion-image-type-guide {
     border-radius: 8px;
     border: 1px solid var(--panel-border);
-    background: rgba(139, 92, 246, 0.06);
+    background: rgba(var(--accent-rgb), 0.06);
     padding: 0.5rem 0.75rem;
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -719,7 +724,7 @@
     border-radius: 8px;
     border: none;
     background: var(--accent);
-    color: white;
+    color: var(--on-accent);
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
@@ -728,9 +733,9 @@
 
 .suggestion-submit-btn:hover:not(:disabled) {
     background: var(--accent-hover);
-    color: white;
+    color: var(--on-accent);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
 }
 
 .suggestion-submit-btn:disabled {
@@ -752,8 +757,8 @@
 }
 
 .suggestion-secondary-btn:hover:not(:disabled) {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(var(--accent-rgb), 0.1);
+    border-color: rgba(var(--accent-rgb), 0.3);
     color: var(--accent);
     transform: translateY(-2px);
 }
@@ -783,18 +788,18 @@
 .suggestion-status.error {
     background: rgba(220, 38, 38, 0.12);
     border: 1px solid rgba(220, 38, 38, 0.4);
-    color: #f87171;
+    color: var(--danger-text);
 }
 
 .suggestion-status.success {
     background: rgba(34, 197, 94, 0.12);
     border: 1px solid rgba(34, 197, 94, 0.4);
-    color: #4ade80;
+    color: var(--success-text);
 }
 
 .suggestion-status.info {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(var(--accent-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--accent-hover);
 }
 
@@ -819,7 +824,7 @@
     background: rgba(220, 38, 38, 0.08);
     border: 1px solid rgba(220, 38, 38, 0.3);
     border-radius: 8px;
-    color: #f87171;
+    color: var(--danger-text);
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.78rem;
     line-height: 1.45;
@@ -842,11 +847,7 @@
     padding: 1rem;
     border-radius: 12px;
     border: 1px solid var(--panel-border);
-    background: rgba(0, 0, 0, 0.12);
-}
-
-[data-theme="light"] .suggestion-image-add-block {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--surface-inset);
 }
 
 .suggestion-image-add-dropzone {

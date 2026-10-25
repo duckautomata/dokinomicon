@@ -24,6 +24,9 @@ const fetchAndParseCSV = async (url) => {
 /**
  * Loads and parses doki data and images from CSV files.
  *
+ * Header-only CSVs resolve to an empty array (a site with no dokis yet).
+ * Fetch and parse failures reject, so the caller can show an error and retry.
+ *
  * @returns {Promise<DokiData[]>} Promise resolving to an array of parsed doki data objects
  */
 export const loadDokiData = async () => {
@@ -75,6 +78,6 @@ export const loadDokiData = async () => {
         return parsedData;
     } catch (error) {
         LOG_ERROR("Error loading doki data:", error);
-        return [];
+        throw error;
     }
 };

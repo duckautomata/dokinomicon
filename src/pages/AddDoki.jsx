@@ -6,6 +6,7 @@ import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
 import ConfirmSubmitModal from "../components/ConfirmSubmitModal";
 import { fetchPublicConfig, uploadImage, submitSuggestion, validateImageFile } from "../utils/contentApi";
 import { saveSuggestionId } from "../utils/suggestionIds";
+import { site } from "../site";
 import { LOG_ERROR } from "../utils/debug";
 import "./SuggestionForms.css";
 
@@ -214,7 +215,7 @@ export default function AddDoki({ data = [] }) {
                 kind: "new",
                 payload,
                 imageIds: uploadedImages.map((img) => img.id),
-                summary: `Add the doki '${payload.name}'`,
+                summary: `Add the ${site.noun.toLowerCase()} '${payload.name}'`,
             });
             saveSuggestionId(result.id);
             setSuccess(result);
@@ -257,8 +258,8 @@ export default function AddDoki({ data = [] }) {
                 <div className="suggestion-card glass-panel">
                     <h1 className="suggestion-title">Thanks!</h1>
                     <p className="suggestion-subtitle">
-                        Your doki suggestion has been submitted for review. Reference ID: <code>{success.id}</code>{" "}
-                        (saved on this device, you can track it under My Suggestions).
+                        Your {site.noun.toLowerCase()} suggestion has been submitted for review. Reference ID:{" "}
+                        <code>{success.id}</code> (saved on this device, you can track it under My Suggestions).
                     </p>
                     <div className="suggestion-actions">
                         <Link to="/my-suggestions" className="suggestion-submit-btn" style={{ textDecoration: "none" }}>
@@ -274,6 +275,10 @@ export default function AddDoki({ data = [] }) {
     }
 
     const maxMb = (cfg.max_image_bytes / (1024 * 1024)).toFixed(0);
+    // An older server reports a single cap; a newer one gives video its own, larger one.
+    const maxVideoMb = ((cfg.max_video_bytes ?? cfg.max_image_bytes) / (1024 * 1024)).toFixed(0);
+    const sizeHint =
+        maxVideoMb === maxMb ? `up to ${maxMb} MB` : `images up to ${maxMb} MB · videos up to ${maxVideoMb} MB`;
     const acceptList = (cfg.supported_formats ?? []).map((f) => `.${f}`).join(",");
 
     let dropzoneOverlay = null;
@@ -291,7 +296,7 @@ export default function AddDoki({ data = [] }) {
                 title="Submit suggestion?"
                 message={
                     <>
-                        Submit the new doki <strong>{name.trim()}</strong> for review?
+                        Submit the new {site.noun.toLowerCase()} <strong>{name.trim()}</strong> for review?
                     </>
                 }
                 confirmLabel="Submit"
@@ -302,9 +307,10 @@ export default function AddDoki({ data = [] }) {
                 <span className="back-arrow">←</span> Back to Gallery
             </Link>
             <div className="suggestion-card glass-panel">
-                <h1 className="suggestion-title">Suggest a New Doki</h1>
+                <h1 className="suggestion-title">Suggest a New {site.noun}</h1>
                 <p className="suggestion-subtitle">
-                    Submit a new doki for review. An admin will check it before it gets added to the archive.
+                    Submit a new {site.noun.toLowerCase()} for review. An admin will check it before it gets added to
+                    the archive.
                 </p>
 
                 <form className="suggestion-form" onSubmit={handleSubmit}>
@@ -389,7 +395,7 @@ export default function AddDoki({ data = [] }) {
                             value={group}
                             onChange={(e) => setGroup(e.target.value)}
                         >
-                            <option value="">— None —</option>
+                            <option value="">-None-</option>
                             {groupOptions.map((g) => (
                                 <option key={g} value={g}>
                                     {g}
@@ -429,7 +435,7 @@ export default function AddDoki({ data = [] }) {
                         <span className="suggestion-field-label">
                             Images{" "}
                             <span className="suggestion-field-hint">
-                                (optional · up to {maxMb} MB · {(cfg.supported_formats ?? []).join(", ")})
+                                (optional · {sizeHint} · {(cfg.supported_formats ?? []).join(", ")})
                             </span>
                         </span>
 
@@ -487,19 +493,19 @@ export default function AddDoki({ data = [] }) {
                                 <summary>What does each type mean?</summary>
                                 <ul>
                                     <li>
-                                        <strong>Headshot</strong> — the main image shown on the homepage
+                                        <strong>Headshot</strong>: the main image shown on the homepage
                                     </li>
                                     <li>
-                                        <strong>Reference</strong> — reference images that artists or fans can use
+                                        <strong>Reference</strong>: reference images that artists or fans can use
                                     </li>
                                     <li>
-                                        <strong>Screenshot</strong> — captures from a stream or video
+                                        <strong>Screenshot</strong>: captures from a stream or video
                                     </li>
                                     <li>
-                                        <strong>Asset</strong> — images that can be used for edits or creations
+                                        <strong>Asset</strong>: images that can be used for edits or creations
                                     </li>
                                     <li>
-                                        <strong>Other</strong> — anything else
+                                        <strong>Other</strong>: anything else
                                     </li>
                                 </ul>
                             </details>

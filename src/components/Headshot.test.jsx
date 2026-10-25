@@ -34,6 +34,19 @@ describe("Headshot", () => {
         expect(img).toHaveAttribute("src", "test-url.webp");
     });
 
+    it("prefers an explicit title over the doki name", () => {
+        render(
+            <MemoryRouter>
+                <Headshot doki={mockDoki} headshot={mockHeadshot} title="Casual" />
+            </MemoryRouter>,
+        );
+
+        expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Casual");
+        expect(screen.getByRole("img", { name: "Casual" })).toBeInTheDocument();
+        // The meta lines still describe the doki, not the image
+        expect(screen.getByText("Artist: Test Artist")).toBeInTheDocument();
+    });
+
     it("renders placeholder without headshot", () => {
         render(
             <MemoryRouter>

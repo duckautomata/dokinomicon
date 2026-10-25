@@ -24,7 +24,7 @@
 }
 
 .suggestions-btn.active {
-    background: rgba(139, 92, 246, 0.15);
+    background: rgba(var(--accent-rgb), 0.15);
     color: var(--accent);
     font-weight: 600;
 }

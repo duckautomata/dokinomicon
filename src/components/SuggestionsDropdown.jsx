@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useMatch } from "react-router-dom";
+import { site } from "../site";
 import "./SuggestionsDropdown.css";
 
 export default function SuggestionsDropdown() {
@@ -44,11 +45,11 @@ export default function SuggestionsDropdown() {
             {isOpen && (
                 <div className="dropdown-menu glass-panel">
                     <Link to="/add" onClick={close} className="dropdown-item">
-                        <span>New Doki</span>
+                        <span>New {site.noun}</span>
                     </Link>
                     {currentDokiId && (
                         <Link to={`/edit/${currentDokiId}`} onClick={close} className="dropdown-item">
-                            <span>Edit current Doki</span>
+                            <span>Edit current {site.noun}</span>
                         </Link>
                     )}
                     <Link to="/suggestion" onClick={close} className="dropdown-item">

@@ -1,12 +1,19 @@
+import { sites } from "../../sites.config.js";
 import { siteName } from "../config";
+// Aliased so it doesn't clash with the `site` id the API functions take.
+import { site as thisSite } from "../site";
 import { clampSummary } from "./suggestionSummary";
 import { LOG_MSG } from "./debug";
+
+// Each character-archive site's sister emote site (dokinomicon → dokimotes).
+const motesSiteFor = (site) => site.replace(/nomicon$/, "motes");
 
 const MOCK_CONFIG = Object.freeze({
     turnstile_site_key: "mock-site-key",
     turnstile_enabled: true,
-    allowed_sites: ["dokimotes", "dokinomicon"],
+    allowed_sites: Object.values(sites).flatMap((s) => [motesSiteFor(s.slug), s.slug]),
     max_image_bytes: 26214400,
+    max_video_bytes: 104857600,
     supported_formats: ["jpg", "jpeg", "png", "webp", "avif", "gif", "mp4"],
     public_url_prefix: "https://cdn.mock",
     pending_prefix: "_suggestions/_pending/",
@@ -104,20 +111,20 @@ const MOCK_STATUSES = ["pending", "approved", "rejected", "completed"];
 const MOCK_KINDS = ["new", "edit", "delete"];
 // Stands in for the server-generated summary on ids we didn't submit ourselves.
 const MOCK_SUMMARIES = {
-    new: (name) => `Add the doki '${name}'`,
+    new: (name) => `Add the ${thisSite.noun.toLowerCase()} '${name}'`,
     edit: (name) => `Update the tags on '${name}'`,
-    delete: (name) => `Remove the doki '${name}'`,
+    delete: (name) => `Remove the ${thisSite.noun.toLowerCase()} '${name}'`,
 };
 const MOCK_FEEDBACK = {
     approved: "Mock feedback: looks great!\nCropping the headshot slightly before it goes live.",
-    rejected: "Mock feedback: duplicate of an existing doki.",
+    rejected: `Mock feedback: duplicate of an existing ${thisSite.noun.toLowerCase()}.`,
 };
 
 // Mirrors GET /api/public/suggestions/{site}. Statuses are derived
 // deterministically from the id so reloading the page keeps them stable; ids
 // containing "missing" or "notfound" simulate deleted/unknown suggestions, and
-// ids containing "motes" simulate suggestions owned by another site, which the
-// server reports as not_found rather than returning.
+// ids containing "motes" simulate suggestions owned by this site's motes
+// site, which the server reports as not_found rather than returning.
 export const fetchSuggestionStatuses = async (ids, site = siteName) => {
     await sleep(randomDelay(200, 500));
     statusCount += 1;
@@ -139,7 +146,7 @@ export const fetchSuggestionStatuses = async (ids, site = siteName) => {
             results.not_found.push(id);
             continue;
         }
-        const ownerSite = lower.includes("motes") ? "dokimotes" : siteName;
+        const ownerSite = lower.includes("motes") ? motesSiteFor(siteName) : siteName;
         if (ownerSite !== site) {
             results.not_found.push(id);
             continue;
@@ -156,7 +163,7 @@ export const fetchSuggestionStatuses = async (ids, site = siteName) => {
             site: ownerSite,
             kind,
             status,
-            summary: sessionSubmittedIds.get(id) ?? MOCK_SUMMARIES[kind](`Mock Doki ${hash % 100}`),
+            summary: sessionSubmittedIds.get(id) ?? MOCK_SUMMARIES[kind](`Mock ${thisSite.noun} ${hash % 100}`),
             submitted_at: submittedAt.toISOString(),
             updated_at: updatedAt.toISOString(),
             admin_context: MOCK_FEEDBACK[status] ?? "",

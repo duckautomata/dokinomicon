@@ -1,0 +1,28 @@
+{
+    "name": "The Mintonomicon",
+    "short_name": "Mintonomicon",
+    "description": "An archive of every Mint in the Mintoverse.",
+    "start_url": "/mintonomicon/",
+    "scope": "/mintonomicon/",
+    "icons": [
+        {
+            "src": "/mintonomicon/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/mintonomicon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/mintonomicon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "theme_color": "#10b981",
+    "background_color": "#047857",
+    "display": "standalone"
+}

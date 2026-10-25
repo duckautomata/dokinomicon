@@ -1,9 +1,27 @@
+import { DEFAULT_SITE, sites } from "../sites.config.js";
+
+// Each site's build is served from its own /<slug>/ folder in the assets.
+const slugs = new Set(Object.values(sites).map((site) => site.slug));
+
 export default {
     async fetch(request, env) {
-        // 0. Redirect /dokinomicon (no trailing slash) to /dokinomicon/
         const url = new URL(request.url);
-        if (url.pathname === "/dokinomicon") {
-            url.pathname = "/dokinomicon/";
+
+        // Production routes only send /<slug> paths to this Worker, so this only
+        // matters for local preview (`npm run preview`), which opens on "/".
+        if (url.pathname === "/") {
+            url.pathname = `/${sites[DEFAULT_SITE].slug}/`;
+            return Response.redirect(url.toString(), 302);
+        }
+
+        const slug = url.pathname.split("/")[1];
+        if (!slugs.has(slug)) {
+            return env.ASSETS.fetch(request);
+        }
+
+        // 0. Redirect /<slug> (no trailing slash) to /<slug>/
+        if (url.pathname === `/${slug}`) {
+            url.pathname = `/${slug}/`;
             return Response.redirect(url.toString(), 301);
         }
 
@@ -12,8 +30,6 @@ export default {
 
         // 2. Handle 404s
         if (response.status === 404) {
-            const url = new URL(request.url);
-
             // Check if the URL path ends with a file extension (e.g., .css, .js, .png)
             const hasFileExtension = url.pathname.match(/\.[a-z0-9]+$/i);
 
@@ -22,8 +38,8 @@ export default {
                 return response;
             }
 
-            // It's a navigation route (no extension). Fallback to the SPA's root.
-            url.pathname = "/dokinomicon/";
+            // It's a navigation route (no extension). Fallback to that site's SPA root.
+            url.pathname = `/${slug}/`;
             return env.ASSETS.fetch(new Request(url, request));
         }
 

@@ -58,7 +58,7 @@
 .hero-image-wrapper {
     flex: 0 0 40%;
     position: relative;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--media-bg);
     min-height: 300px;
 }
 
@@ -120,7 +120,8 @@
 
 .hero-meta {
     display: flex;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--panel-border);
@@ -130,6 +131,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
 }
 
 .meta-label {
@@ -144,6 +146,22 @@
     font-size: 1.1rem;
     color: var(--text-primary);
     font-weight: 500;
+}
+
+/* The debut stream shows its own URL, so make it obviously clickable and let
+   it wrap instead of pushing the rest of the meta row off the panel. */
+.meta-value.meta-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--accent-rgb), 0.5);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+}
+
+.meta-value.meta-link:hover {
+    color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
 }
 
 .view-actions {
@@ -161,9 +179,9 @@
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
-    background: rgba(139, 92, 246, 0.1);
+    background: rgba(var(--accent-rgb), 0.1);
     color: var(--accent);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     transition: all 0.2s ease;
     text-decoration: none;
     font-weight: 500;
@@ -179,9 +197,9 @@
 }
 
 .edit-doki-btn:hover {
-    background: rgba(139, 92, 246, 0.2);
+    background: rgba(var(--accent-rgb), 0.2);
     color: var(--accent-hover);
-    border-color: rgba(139, 92, 246, 0.4);
+    border-color: rgba(var(--accent-rgb), 0.4);
 }
 
 .hero-description {
@@ -200,9 +218,9 @@
 
 .tag-pill {
     padding: 0.4rem 1rem;
-    background: rgba(139, 92, 246, 0.15);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    color: #c4b5fd;
+    background: rgba(var(--accent-rgb), 0.15);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    color: var(--accent-lighter);
     border-radius: 99px;
     font-size: 0.9rem;
     font-weight: 500;
@@ -248,7 +266,7 @@
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid var(--panel-border);
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--media-bg);
     transition: border-color 0.2s ease;
 }
 
@@ -270,7 +288,7 @@
     justify-content: center;
     font-size: 2.5rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--placeholder-ink);
 }
 
 .alt-name {

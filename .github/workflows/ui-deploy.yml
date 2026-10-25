@@ -16,6 +16,8 @@ on:
             - "package-lock.json"
             - "vite.config.*"
             - "wrangler.toml"
+            - "sites.config.js"
+            - "scripts/**"
             - ".github/workflows/ui-deploy.yml"
 
 jobs:

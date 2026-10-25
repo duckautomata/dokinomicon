@@ -1,12 +1,17 @@
 // oxlint-disable no-console
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
+import { resolveSite } from "./sites.config.js";
 
 // https://vitejs.dev/config/
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
     const buildTime = new Date().getTime();
+    const env = loadEnv(mode, process.cwd());
+    // One build per site. `npm run build` builds them all (scripts/sites.mjs).
+    const site = resolveSite(process.env.VITE_SITE);
+    const outDir = `dist/${site.slug}`; // should be the same as base
 
     return {
         plugins: [
@@ -14,16 +19,21 @@ export default defineConfig(() => {
             {
                 name: "generate-version-json",
                 writeBundle(options) {
-                    const outDir = options.dir || "dokinomicon";
-                    const versionFilePath = path.resolve(outDir, "version.json");
+                    const versionFilePath = path.resolve(options.dir || outDir, "version.json");
                     fs.writeFileSync(versionFilePath, JSON.stringify({ buildTime }));
                     console.log(`\nGenerated version.json with buildTime: ${buildTime}`);
                 },
             },
         ],
-        base: "/dokinomicon/",
+        base: `/${site.slug}/`,
+        publicDir: `public/${site.id}`,
         define: {
             __BUILD_TIME__: buildTime,
+            // Also fills the matching %TOKENS% in index.html.
+            "import.meta.env.VITE_SITE": JSON.stringify(site.id),
+            "import.meta.env.VITE_PAGE_TITLE": JSON.stringify(`${site.title}${env.VITE_TITLE_SUFFIX ?? ""}`),
+            "import.meta.env.VITE_SITE_DESCRIPTION": JSON.stringify(site.description),
+            "import.meta.env.VITE_SITE_THEME_COLOR": JSON.stringify(site.themeColor),
         },
         server: {
             port: 5173,
@@ -33,7 +43,7 @@ export default defineConfig(() => {
             emptyOutDir: true,
             manifest: false,
             target: "esnext",
-            outDir: "dist/dokinomicon", // should be the same as base
+            outDir,
             rollupOptions: {
                 output: {
                     manualChunks: (id) => {

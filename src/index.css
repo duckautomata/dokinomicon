@@ -6,6 +6,11 @@
     --text-secondary: #9ba0b5;
     --accent: #8b5cf6;
     --accent-hover: #a78bfa;
+    --on-accent: #fff; /* text on accent-filled buttons and badges */
+    /* Not redefined for light mode: tints and highlights look the same in both themes. */
+    --accent-rgb: 139, 92, 246; /* for rgba() tints */
+    --accent-light: #c084fc;
+    --accent-lighter: #c4b5fd;
     --panel-bg: rgba(255, 255, 255, 0.03);
     --panel-border: rgba(255, 255, 255, 0.08);
     --nav-bg: rgba(13, 15, 26, 0.8);
@@ -14,16 +19,31 @@
     --hero-title-gradient: #c084fc;
     --checkerboard: rgba(255, 255, 255, 0.03);
 
+    /* Form controls, media backdrops and faint inset panels. Dark mode tints
+       toward black; light mode can't follow, because a black tint over a pale
+       page reads as mid-gray and swallows the dark text sitting on it. Every
+       one of these is redefined for light mode below. */
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --input-bg-focus: rgba(0, 0, 0, 0.4);
+    --input-border: rgba(var(--accent-rgb), 0.3);
+    --input-border-focus: rgba(var(--accent-rgb), 0.8);
+    --input-shadow: none;
+    --input-shadow-focus: 0 0 15px rgba(var(--accent-rgb), 0.2);
+    --media-bg: rgba(0, 0, 0, 0.2);
+    --surface-inset: rgba(0, 0, 0, 0.18);
+    --hover-overlay: rgba(255, 255, 255, 0.1);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+    /* The oversized initial behind a missing image, and its fainter card variant. */
+    --placeholder-ink: rgba(255, 255, 255, 0.2);
+    --placeholder-ink-faint: rgba(255, 255, 255, 0.05);
+    /* Error and success wording. The tints they sit on stay the same in both
+       themes, so only the ink darkens for light mode. */
+    --danger-text: #f87171;
+    --success-text: #4ade80;
+
     font-family:
-        "Inter",
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
+        "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color-scheme: dark;
     color: var(--text-primary);
     background-color: var(--bg-color);
@@ -48,7 +68,47 @@
     --overlay-color-rgb: 248, 250, 252;
     --hero-title-gradient: #c084fc;
     --checkerboard: rgba(0, 0, 0, 0.04);
+
+    /* Controls are white and lifted by a hairline shadow rather than filled with
+       a gray tint, and focus adds an accent ring instead of darkening the field. */
+    --input-bg: #fff;
+    --input-bg-focus: #fff;
+    --input-border: rgba(var(--accent-rgb), 0.35);
+    --input-border-focus: var(--accent);
+    --input-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --input-shadow-focus: 0 0 0 3px rgba(var(--accent-rgb), 0.18), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --media-bg: rgba(15, 23, 42, 0.06);
+    --surface-inset: rgba(15, 23, 42, 0.04);
+    --hover-overlay: rgba(15, 23, 42, 0.06);
+    --scrollbar-thumb: rgba(15, 23, 42, 0.25);
+    --scrollbar-thumb-hover: rgba(15, 23, 42, 0.4);
+    --placeholder-ink: rgba(15, 23, 42, 0.15);
+    --placeholder-ink-faint: rgba(15, 23, 42, 0.04);
+    --danger-text: #b91c1c;
+    --success-text: #15803d;
     color-scheme: light;
+}
+
+/* Mint Fantome's site (data-site is set in index.jsx). These selectors are more
+   specific than both blocks above, so they win in either theme. */
+:root[data-site="mint"] {
+    --accent: #10b981;
+    --accent-hover: #34d399;
+    /* White on these greens is hard to read, so filled buttons get dark text in both themes. */
+    --on-accent: #0d0f1a;
+    --accent-rgb: 16, 185, 129;
+    --accent-light: #34d399;
+    --accent-lighter: #6ee7b7;
+    --hero-title-gradient: #34d399;
+}
+
+:root[data-site="mint"][data-theme="light"] {
+    --accent: #059669;
+    --accent-hover: #047857;
+    /* Mint's pale highlight greens are unreadable on the light background, so text gets a darker green. */
+    --accent-light: #047857;
+    --accent-lighter: #047857;
+    --hero-title-gradient: #34d399;
 }
 
 body {
@@ -120,12 +180,12 @@ p {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--scrollbar-thumb-hover);
 }
 
 button {
@@ -157,7 +217,7 @@ button {
 
 .search-clear-button:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--hover-overlay);
 }
 
 /* Filter Dropdowns */
@@ -179,8 +239,9 @@ button {
 .filter-select {
     padding: 0.6rem 1.75rem 0.6rem 0.75rem;
     border-radius: 99px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    box-shadow: var(--input-shadow);
     color: var(--text-primary);
     font-family: inherit;
     font-size: 0.9rem;
@@ -195,11 +256,27 @@ button {
     box-sizing: border-box;
 }
 
-/* background-color, not the background shorthand — the shorthand would wipe the chevron */
+/* CSS variables can't reach into a data URI, so each site and theme needs its own
+   chevron. :where() keeps the specificity of the rule above, so these four win on
+   source order alone - keep the light-mode pair last. */
+:where([data-site="mint"]) .filter-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* The dark themes' pale chevrons all but vanish on a white control. */
+:where([data-theme="light"]) .filter-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+:where([data-site="mint"][data-theme="light"]) .filter-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* background-color, not the background shorthand - the shorthand would wipe the chevron */
 .filter-select:focus {
-    border-color: rgba(139, 92, 246, 0.8);
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
-    background-color: rgba(0, 0, 0, 0.4);
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+    background-color: var(--input-bg-focus);
 }
 
 .filter-select option {
@@ -258,8 +335,8 @@ button {
 .hero-image-wrapper:hover .video-indicator,
 .gallery-item:hover .video-indicator,
 .alt-image-container:hover .video-indicator {
-    background: rgba(139, 92, 246, 0.8);
+    background: rgba(var(--accent-rgb), 0.8);
     /* Accent color on hover */
     transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
 }
