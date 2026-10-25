@@ -34,11 +34,7 @@
     padding: 0.9rem 1rem;
     border-radius: 12px;
     border: 1px solid var(--panel-border);
-    background: rgba(0, 0, 0, 0.18);
-}
-
-[data-theme="light"] .status-row {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--surface-inset);
 }
 
 .status-row-header {
@@ -155,7 +151,7 @@
 .status-remove-btn:hover {
     background: rgba(220, 38, 38, 0.15);
     border-color: rgba(220, 38, 38, 0.5);
-    color: #f87171;
+    color: var(--danger-text);
 }
 
 .status-meaning {

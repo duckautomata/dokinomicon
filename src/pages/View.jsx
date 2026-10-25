@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ImageModal from "../components/ImageModal";
 import { renderTextWithLinks, formatUrlForDisplay, toHref } from "../utils/textUtils";
+import { useAppStore } from "../store/store";
 import { site } from "../site";
 import notFoundImage from "../assets/404.png";
 import "./View.css";
@@ -41,6 +42,7 @@ export default function View({ data }) {
     const { doki_id } = useParams();
     const doki = data.find((d) => d.doki_id === doki_id);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+    const restoreHomeScroll = useAppStore((state) => state.restoreHomeScroll);
 
     // Compute a flat array of all images in the order they appear on the page
     const viewableImages = useMemo(() => {
@@ -135,7 +137,7 @@ export default function View({ data }) {
 
     return (
         <div className="view-container">
-            <Link to="/" className="back-link">
+            <Link to="/" className="back-link" onClick={restoreHomeScroll}>
                 <span className="back-arrow">←</span> Back to Gallery
             </Link>
 

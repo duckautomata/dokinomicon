@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { loadDokiData } from "./utils/dataLoader";
+import { useAppStore } from "./store/store";
 import { useSystemTheme } from "./utils/useSystemTheme";
 import { sites } from "../sites.config.js";
 import { site } from "./site";
@@ -28,12 +29,17 @@ const menuSites = Object.values(sites).map((s) => ({
 
 export default function App() {
     const location = useLocation();
+    const takePendingScrollY = useAppStore((state) => state.takePendingScrollY);
 
     useLayoutEffect(() => {
         document.documentElement.style.scrollBehavior = "auto";
 
+        // A route opens at the top unless the navigation asked to land somewhere - "Back to
+        // Gallery" hands back the offset the grid was left at. The restore belongs here rather
+        // than in the page itself: child effects run first, so this one would scroll the page
+        // straight back to the top afterwards.
         window.scrollTo({
-            top: 0,
+            top: takePendingScrollY(),
             left: 0,
             behavior: "instant",
         });
@@ -41,7 +47,7 @@ export default function App() {
         setTimeout(() => {
             document.documentElement.style.scrollBehavior = "";
         }, 20);
-    }, [location.pathname]);
+    }, [location.pathname, takePendingScrollY]);
 
     useSystemTheme();
 

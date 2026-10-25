@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { MemoryRouter, Route, Routes, useOutletContext } from "react-router-dom";
 import App from "./App";
 import Home from "./pages/Home";
+import View from "./pages/View";
 import { loadDokiData } from "./utils/dataLoader";
 
 vi.mock("./utils/dataLoader", () => ({
@@ -14,21 +15,31 @@ const HomeRoute = () => {
     return <Home data={data} />;
 };
 
+const ViewRoute = () => {
+    const { data } = useOutletContext();
+    return <View data={data} />;
+};
+
 const renderApp = () =>
     render(
         <MemoryRouter>
             <Routes>
                 <Route path="/" element={<App />}>
                     <Route index element={<HomeRoute />} />
+                    <Route path="view/:doki_id" element={<ViewRoute />} />
                 </Route>
             </Routes>
         </MemoryRouter>,
     );
 
+/** jsdom never scrolls, so the offset the page would be at has to be faked. */
+const setScrollY = (y) => Object.defineProperty(window, "scrollY", { value: y, configurable: true });
+
 const mockData = [
     {
         doki_id: "test-doki-1",
         name: "Alpha Doki",
+        description: "The first doki.",
         group: "Group A",
         tags: ["tag1"],
         images: {
@@ -114,6 +125,42 @@ describe("App", () => {
 
         expect(hub).toHaveAccessibleName("All my sites");
         expect(hub).toHaveAttribute("href", "https://www.duck-automata.com/");
+    });
+
+    it("returns to the spot in the gallery the card was opened from", async () => {
+        loadDokiData.mockResolvedValue(mockData);
+        renderApp();
+
+        // The user has scrolled down the grid before opening a card
+        const card = (await screen.findByAltText("Alpha Doki")).closest("a");
+        setScrollY(420);
+        fireEvent.click(card);
+
+        // The doki's own page still opens at the top
+        expect(await screen.findByRole("heading", { level: 1, name: "Alpha Doki" })).toBeInTheDocument();
+        expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 0, left: 0, behavior: "instant" });
+
+        setScrollY(0);
+        fireEvent.click(screen.getByRole("link", { name: /Back to Gallery/ }));
+
+        expect(await screen.findByAltText("Alpha Doki")).toBeInTheDocument();
+        expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 420, left: 0, behavior: "instant" });
+    });
+
+    it("opens the gallery at the top when it is reached from the nav", async () => {
+        loadDokiData.mockResolvedValue(mockData);
+        renderApp();
+
+        const card = (await screen.findByAltText("Alpha Doki")).closest("a");
+        setScrollY(420);
+        fireEvent.click(card);
+        await screen.findByRole("heading", { level: 1, name: "Alpha Doki" });
+
+        setScrollY(0);
+        fireEvent.click(screen.getByRole("link", { name: "Home" }));
+
+        expect(await screen.findByAltText("Alpha Doki")).toBeInTheDocument();
+        expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 0, left: 0, behavior: "instant" });
     });
 
     it("follows the system theme", async () => {

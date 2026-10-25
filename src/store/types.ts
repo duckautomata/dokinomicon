@@ -40,14 +40,23 @@ export interface FilterSlice {
     homeSetFilterGroup: (group: string) => void;
     homeSortBy: string;
     homeSetSortBy: (sortBy: string) => void;
+    homeRandomSeed: number;
     imageSearchText: string;
     setImageSearchText: (text: string) => void;
     imageFilterType: string;
     setImageFilterType: (type: string) => void;
 }
 
+export interface ScrollSlice {
+    homeScrollY: number;
+    homeSetScrollY: (y: number) => void;
+    pendingScrollY: number;
+    restoreHomeScroll: () => void;
+    takePendingScrollY: () => number;
+}
+
 // The combined store type
-export type AppStore = FilterSlice;
+export type AppStore = FilterSlice & ScrollSlice;
 
 // Helper type for creating slices
 export type AppSliceCreator<T> = StateCreator<AppStore, [], [], T>;

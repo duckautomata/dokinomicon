@@ -86,6 +86,8 @@ describe("Home", () => {
             homeSetFilterGroup: vi.fn(),
             homeSortBy: "default",
             homeSetSortBy: vi.fn(),
+            homeRandomSeed: 1,
+            homeSetScrollY: vi.fn(),
         };
 
         useAppStore.mockImplementation((selector) => selector(mockStore));
@@ -134,7 +136,7 @@ describe("Home", () => {
 
         const sortSelect = screen.getByLabelText("Sort");
         expect(sortSelect).toHaveValue("default");
-        expect(within(sortSelect).getAllByRole("option")).toHaveLength(8);
+        expect(within(sortSelect).getAllByRole("option")).toHaveLength(9);
         expect(renderedNames()).toEqual(["Zeta Doki", "Alpha Doki", "Mid Doki"]);
     });
 
@@ -183,6 +185,33 @@ describe("Home", () => {
         expect(renderedNames()[0]).toBe("Alpha Doki");
     });
 
+    it("shuffles with the random sort, keeping every doki exactly once", () => {
+        mockStore.homeSortBy = "random";
+        const { unmount } = renderHome(sortData);
+
+        const shuffled = renderedNames();
+        expect([...shuffled].sort()).toEqual(["Alpha Doki", "Mid Doki", "Zeta Doki"]);
+        unmount();
+
+        // Same seed, same order: the shuffle must not churn on every render.
+        renderHome(sortData);
+        expect(renderedNames()).toEqual(shuffled);
+    });
+
+    it("reshuffles when the random seed changes", () => {
+        mockStore.homeSortBy = "random";
+        const orders = new Set();
+
+        for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+            mockStore.homeRandomSeed = seed;
+            const { unmount } = renderHome(sortData);
+            orders.add(renderedNames().join("|"));
+            unmount();
+        }
+
+        expect(orders.size).toBeGreaterThan(1);
+    });
+
     it("sorts only the filtered results", () => {
         mockStore.homeSortBy = "name-asc";
         mockStore.homeSearchText = "doki";
@@ -202,7 +231,7 @@ describe("Home", () => {
         expect(sortData.map((doki) => doki.doki_id)).toEqual(originalOrder);
     });
 
-    it("renders one card per headshot", () => {
+    it("renders one card per headshot, titled by the image", () => {
         const multiData = [
             {
                 doki_id: "multi",
@@ -211,8 +240,10 @@ describe("Home", () => {
                 tags: [],
                 images: {
                     Headshot: [
-                        { urlWebp: "one.webp", image_ext: ".webp" },
-                        { urlWebp: "two.webp", image_ext: ".webp" },
+                        { urlWebp: "one.webp", image_ext: ".webp", image_name: "Casual" },
+                        { urlWebp: "two.webp", image_ext: ".webp", image_name: "Formal" },
+                        // No image_name to fall back on, so this card keeps the doki's name
+                        { urlWebp: "three.webp", image_ext: ".webp" },
                     ],
                 },
             },
@@ -220,7 +251,25 @@ describe("Home", () => {
 
         renderHome(multiData);
 
-        expect(renderedNames()).toEqual(["Multi Doki", "Multi Doki"]);
+        expect(renderedNames()).toEqual(["Casual", "Formal", "Multi Doki"]);
+    });
+
+    it("keeps the doki name on a card when there is only one headshot", () => {
+        const singleData = [
+            {
+                doki_id: "single",
+                name: "Single Doki",
+                group: "Group A",
+                tags: [],
+                images: {
+                    Headshot: [{ urlWebp: "one.webp", image_ext: ".webp", image_name: "Casual" }],
+                },
+            },
+        ];
+
+        renderHome(singleData);
+
+        expect(renderedNames()).toEqual(["Single Doki"]);
     });
 
     it("shows a friendly empty state when the site has no dokis yet", () => {

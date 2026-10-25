@@ -39,7 +39,24 @@ const imageCount = (doki) => Object.values(doki.images || {}).reduce((total, lis
  */
 const artistKey = (doki) => (doki.artists || "").replace(/[@_]/g, "").trim();
 
-/** "Default" has no comparator, which keeps the order the csv file was authored in. */
+/**
+ * Hashes a doki_id together with the current shuffle seed into a sort key. Keyed off the id rather
+ * than calling Math.random() inside the comparator so that sort() never sees an inconsistent
+ * comparator, and so the shuffled order holds still while the user searches or changes the group.
+ */
+const randomKey = (doki, seed) => {
+    const input = `${seed}:${doki.doki_id}`;
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+        hash = (Math.imul(hash, 31) + input.charCodeAt(i)) | 0;
+    }
+    return hash;
+};
+
+/**
+ * "Default" has no comparator, which keeps the order the csv file was authored in. "Random" builds
+ * its comparator from the seed instead of carrying a fixed one.
+ */
 const SORT_OPTIONS = [
     { value: "default", label: "Default" },
     { value: "name-asc", label: "Name (A-Z)", comparator: byText((doki) => doki.name, 1) },
@@ -50,6 +67,7 @@ const SORT_OPTIONS = [
     { value: "group-asc", label: "Group (A-Z)", comparator: byText((doki) => doki.group, 1) },
     // Raw subtraction on purpose: 0 images is a real count, not a missing value.
     { value: "images-desc", label: "Most images", comparator: (a, b) => imageCount(b) - imageCount(a) },
+    { value: "random", label: "Random", seeded: (seed) => (a, b) => randomKey(a, seed) - randomKey(b, seed) },
 ];
 
 /**
@@ -63,6 +81,11 @@ export default function Home({ data }) {
     const setFilterGroup = useAppStore((state) => state.homeSetFilterGroup);
     const sortBy = useAppStore((state) => state.homeSortBy);
     const setSortBy = useAppStore((state) => state.homeSetSortBy);
+    const randomSeed = useAppStore((state) => state.homeRandomSeed);
+    const setScrollY = useAppStore((state) => state.homeSetScrollY);
+
+    // Remembered for the view page's "Back to Gallery" link, so it lands on the card just opened.
+    const rememberScroll = () => setScrollY(window.scrollY);
 
     const groups = useMemo(() => {
         const uniqueGroups = new Set();
@@ -88,11 +111,12 @@ export default function Home({ data }) {
 
     const sortedData = useMemo(() => {
         const option = SORT_OPTIONS.find((opt) => opt.value === sortBy);
-        if (!option?.comparator) return filteredData;
+        const comparator = option?.seeded ? option.seeded(randomSeed) : option?.comparator;
+        if (!comparator) return filteredData;
         // Copy before sorting: `data` is App state shared with every other route, and
         // `filteredData` is memoized, so sorting either in place would corrupt them.
-        return [...filteredData].sort(option.comparator);
-    }, [filteredData, sortBy]);
+        return [...filteredData].sort(comparator);
+    }, [filteredData, sortBy, randomSeed]);
 
     // The csv files loaded but have no rows yet (e.g. a brand-new site). Filters have nothing to work on.
     if (data.length === 0) {
@@ -191,11 +215,20 @@ export default function Home({ data }) {
                     const headshots = doki.images?.Headshot || [];
 
                     if (headshots.length === 0) {
-                        return [<Headshot key={`${doki.doki_id}-no-img`} doki={doki} />];
+                        return [<Headshot key={`${doki.doki_id}-no-img`} doki={doki} onNavigate={rememberScroll} />];
                     }
 
                     return headshots.map((headshot, idx) => (
-                        <Headshot key={`${doki.doki_id}-img-${idx}`} doki={doki} headshot={headshot} />
+                        <Headshot
+                            key={`${doki.doki_id}-img-${idx}`}
+                            doki={doki}
+                            headshot={headshot}
+                            // One card per headshot, so a doki with several of them would otherwise
+                            // repeat the same name down the grid. Each card is labelled by its own
+                            // image instead, which says what that headshot actually is.
+                            title={headshots.length > 1 ? headshot.image_name : undefined}
+                            onNavigate={rememberScroll}
+                        />
                     ));
                 })}
             </div>
