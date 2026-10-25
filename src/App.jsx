@@ -44,9 +44,12 @@ export default function App() {
             behavior: "instant",
         });
 
-        setTimeout(() => {
+        // Cleared on the way out: a navigation that unmounts the app, as every test does, would
+        // otherwise leave this reaching for a document that is no longer there.
+        const restoreScrollBehavior = setTimeout(() => {
             document.documentElement.style.scrollBehavior = "";
         }, 20);
+        return () => clearTimeout(restoreScrollBehavior);
     }, [location.pathname, takePendingScrollY]);
 
     useSystemTheme();
